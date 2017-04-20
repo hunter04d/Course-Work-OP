@@ -9,25 +9,7 @@
 
 int main()
 {
-	std::string a = shuntingYard("x1^2+x2^2-1");
-	std::string b = shuntingYard("x1^3-x2");
-	std::cout << a << '\n';
-	std::cout << b << '\n';
-	std::vector<std::string> func = {a ,b };
-	std::vector<double> points = { 2,2 };
-	if (Iterative::mergeConditionBy_vNorm(func,points))
-	{
-		auto result = Iterative::getResult(func, points);
-		for (auto x : result)
-		{
-			std::cout << x << ' ';
-		}
-		std::cout << '\n';
-	}
-	else
-	{
-		std::cout << "does not merge\n";
-	}
-
+	Maths::T_matrix a(25, std::vector<double>(25, 5));
+	std::cout << Maths::Linear::determinant(a) << '\n';
 	system("pause");
 }
