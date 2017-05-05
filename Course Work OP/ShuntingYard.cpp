@@ -1,5 +1,6 @@
 ﻿#include "ShuntingYard.h"
 #include <sstream>
+#include "mainwindow.h"
 #include "Operators.h"
 #include <cctype>
 #include <string>
