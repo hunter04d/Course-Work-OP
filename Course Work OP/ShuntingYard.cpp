@@ -3,59 +3,67 @@
 #include "Operators.h"
 #include <cctype>
 #include <string>
+#include <algorithm>
 #include "Stack.h"
 
-
-void preAnalize(std::string& _in) // insert * and change x, y, z to x1, x2, x3
+void preAnalize(std::string& _in) // insert * when makes sence
 {
+    _in.erase(std::remove_if(_in.begin(), _in.end(), std::isspace), _in.end());
 	for(size_t i = 0u; i < _in.size();++i)
 	{
 		char& curr_char = _in[i];
 		if (curr_char == '(' && i != 0)
 		{
-			if (isdigit(_in[i - 1]))
+            int reverse_i = 1;
+            while(isdigit(_in[i-reverse_i])|| _in[i-reverse_i] == '.')
 			{
-				_in.insert(_in.begin() + i, '*');
+                if(i-reverse_i == 0)
+                {
+                    _in.insert(_in.begin() + i, '*');
+                    break;
+                }
+                ++reverse_i;
 			}
-			
+            if(!isalpha(_in[i-reverse_i]))
+            {
+                _in.insert(_in.begin() + i, '*');
+            }
 		}
-		if (curr_char == 'x' && i != 0)
+        if (isalpha(curr_char) && i != 0)
 		{
-			if (isdigit(_in[i - 1]))
+            if (isdigit(_in[i - 1]))
 			{
 				_in.insert(_in.begin() + i, '*');
 			}
-		}/*if (isalpha(curr_char))
-		{
-			curr_char = tolower(curr_char);
-		}*/
-
-		/*if (curr_char == 'x' || isdigit(_in[i+1]) == false)
-		{
-			
-		}*/
-	}
+        }
+    }
 }
 
-std::string shuntingYard(const std::string& _in) //to RPN
+std::string shuntingYard(const std::string& _in, size_t _function_number) //to RPN
 {
 	size_t pos(0);
 	Stack<std::string> stack;
 	bool last_was_func = false;
 	std::string out;
+    std::vector<bool> has_variable(_function_number, false);
 	while (pos < _in.size())
 	{
 		char curr_char = _in[pos];
 		//Variable
-		auto var_pair = getVariableToken(_in, pos);
+        auto var_pair = getVariableToken(_in, pos, _function_number);
 		if (var_pair != -1)
 		{
 			if (_in[pos]== '-')
 			{
 				out += _in.substr(pos+1, var_pair-1) + ' ';
+                has_variable.at(std::stoi(_in.substr(pos+2,var_pair-2))-1) = true;
 				out += "unary_minus ";
 			}
-			else { out += _in.substr(pos, var_pair) + ' '; }
+            else
+            {
+                out += _in.substr(pos, var_pair) + ' ';
+                has_variable.at(std::stoi(_in.substr(pos+1,var_pair-1))-1) = true;
+            }
 			pos += var_pair;
 			last_was_func = false;
 			continue;
@@ -132,6 +140,13 @@ std::string shuntingYard(const std::string& _in) //to RPN
 			throw std::exception("Error: Mismatched parenthesis");
 		out += stack.pop() + ' ';
 	}
+    for(size_t i = 0; i < _function_number; ++i)
+    {
+        if(has_variable.at(i) == false)
+        {
+            throw std::exception("Not all variables are present");
+        }
+    }
 	return out;
 }
 
@@ -146,7 +161,7 @@ double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_va
 	{
 		if (token[0] == 'x')
 		{
-			numbers.push(_arg_vals[std::stoi(token.substr(1))-1]);
+            numbers.push(_arg_vals[std::stoi(token.substr(1))-1]);
 		}
 		else if (std::istringstream(token) >> number_token)
 		{
@@ -172,7 +187,7 @@ double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_va
 	return numbers.top();
 }
 
-int getVariableToken(const std::string& _in, size_t _pos)
+int getVariableToken(const std::string& _in, size_t _pos,size_t _function_number)
 {
 	if (_in[_pos] == 'x' || (_pos == 0 && _in[_pos] == '-') || (_in[_pos] == '-' && (_in[_pos - 1] == '(' || isOperator(_in[_pos - 1]))))
 	{
@@ -183,7 +198,7 @@ int getVariableToken(const std::string& _in, size_t _pos)
 			has_minus = true;
 			++count;
 		}
-		for (int i = _pos + count; i < _in.size(); ++i)
+        for (size_t i = _pos + count; i < _in.size(); ++i)
 		{
 			if (isdigit(_in[i]))
 			{
@@ -191,14 +206,13 @@ int getVariableToken(const std::string& _in, size_t _pos)
 			}
 			else break;
 		}
-		if (count == 1+int(has_minus) || std::stoi(_in.substr(_pos+1+has_minus,count-1-has_minus)) > 2 /*NUM_OF_FUNCTIONS*/ )
+        if (count == 1+int(has_minus) || std::stoi(_in.substr(_pos+1+has_minus,count-1-has_minus)) > _function_number /*NUM_OF_FUNCTIONS*/ )
 		{
 			throw std::exception("A variable has higher index than total number of functions");
 		}
 		return count;
 	}
 	return -1;
-
 }
 
 int getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
@@ -208,7 +222,7 @@ int getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
 	{
 		size_t count = 1;
 		bool dottag = false;
-		for (int i = _pos + 1; i < _in.size(); ++i)
+        for (size_t i = _pos + 1; i < _in.size(); ++i)
 		{
 			if (isdigit(_in[i]))
 			{
@@ -229,7 +243,7 @@ int getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
 			}
 			else { break; }
 		}
-		return count;
+        return int(count);
 	}
 	return -1;
 }
@@ -241,7 +255,7 @@ int getFuncToken(const std::string& _in, size_t _pos /*= 0*/)
 	if (isalpha(_in[_pos]))
 	{
 		size_t count = 1;
-		for (int i = _pos + 1; i < _in.size(); ++i)
+        for (size_t i = _pos + 1; i < _in.size(); ++i)
 		{
 			if (isalnum(_in[i]))
 			{
@@ -253,11 +267,11 @@ int getFuncToken(const std::string& _in, size_t _pos /*= 0*/)
 			}
 			if (i ==_in.size()-1)
 			{
-				throw std::exception("Function at the end of the string");
+                throw std::exception("Unknown string Entered");
 			}
 		}
 		if (isFunction(_in.substr(_pos, count)))
-			return count;
+            return int(count);
 		std::string exception_happened = "Unknown function token at position " + std::to_string(_pos + 1) + ' ' + _in.substr(_pos, count);
 		throw std::exception(exception_happened.c_str());
 	}

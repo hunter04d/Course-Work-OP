@@ -6,6 +6,8 @@
 
 struct T_Operator
 {	
+    T_Operator(char _F_operator, size_t _presedence,bool _associativity, double(*_function)(double, double)):
+    F_operator(_F_operator), presedence(_presedence), associativity(_associativity), function(_function) {}
 	enum associativity_tag
 	{
 		E_left = 0,
@@ -20,12 +22,11 @@ struct T_Operator
 
 const std::vector<T_Operator> operators //adding new operators can be done here and just here
 {
-	{ '+', 1, T_Operator::E_left, [](auto operant1, auto operant2) {return operant1 + operant2; } },
-	{ '-', 1, T_Operator::E_left, [](auto operant1, auto operant2) {return operant1 - operant2; } },
-	{ '*', 2, T_Operator::E_left, [](auto operant1, auto operant2) {return operant1 * operant2; } },
-	{ '/', 2, T_Operator::E_left, [](auto operant1, auto operant2) {return operant1 / operant2; } },
-	{ '^', 3, T_Operator::E_right,[](auto operant1, auto operant2) {return pow(operant1 , operant2); } }
-
+    { '+', 1, T_Operator::E_left, [](auto operant1, auto operant2) {return operant1 + operant2; } },
+    { '-', 1, T_Operator::E_left, [](auto operant1, auto operant2) {return operant1 - operant2; } },
+    { '*', 2, T_Operator::E_left, [](auto operant1, auto operant2) {return operant1 * operant2; } },
+    { '/', 2, T_Operator::E_left, [](auto operant1, auto operant2) {return operant1 / operant2; } },
+    { '^', 3, T_Operator::E_right,[](auto operant1, auto operant2) {return pow(operant1 , operant2); } }
 };
 
 bool isOperator(char _in);
@@ -45,7 +46,7 @@ const std::vector<T_UnaryFunction> functions //define new functions here
 	{"exp", [](auto argument) { return exp(argument); }},
 	{"sin", [](auto argument) { return sin(argument); }},
 	{"cos", [](auto argument) { return cos(argument); }},
-	{"log", [](auto argument) { return log(argument); }},
+    {"ln", [](auto argument) { return log(argument); }},
 	{"log10",[](auto argument) {return log10(argument); }}
 
 };

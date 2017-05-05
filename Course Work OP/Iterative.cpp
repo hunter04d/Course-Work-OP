@@ -1,59 +1,70 @@
 ﻿#include "Iterative.h"
 #include "Maths.h"
+#include <math.h>
 #include <algorithm>
 #include <iostream>
 
 std::vector<double> Iterative::getResult(const std::vector<std::string>& _funcs, const std::vector<double>& _init_guess)
 {
 	auto W = Maths::Linear::reverseMatrix(Maths::Calculus::jacobian(_funcs, _init_guess));
-	std::vector<double> delta_iteration(_init_guess.size(),0);
-	std::vector<double> x_vector(_init_guess);
+    std::vector<double> delta_iteration(_init_guess.size(),0);
+    std::vector<double> x_vector(_init_guess);
 	auto b = 0;
+    double prev_delta, curr_delta;
 	do 
 	{
 		for (size_t i = 0 ; i < x_vector.size(); ++i)
 		{
-			x_vector[i] -= delta_iteration[i];
+            x_vector[i] -= delta_iteration[i];
 			std::cout << x_vector[i] << ' ';
+            if(isinf(x_vector[i])|| isnan(x_vector[i]))
+                throw (std::exception("System is not solvable with this initial guess"));
 		}
-		std::cout << '\n';
-		delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, x_vector));
+		std::cout  << '\n';
+        delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, x_vector));
 		++b;
-	} while (b < 10);
+        curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
+        if(b>10)
+        {
+            if(curr_delta > prev_delta)
+            {
+                throw(std::exception("System does not merge to a single solution with this initial guess"));
+            }
+        }
+        prev_delta = curr_delta;
+    } while (curr_delta >= pressision);
 	return x_vector;
 }
 
-bool Iterative::mergeConditionBy_vNorm(const std::vector<std::string>& _funcs, const std::vector<double>& _init_guess)
+std::vector<double> GaussZeidel::getResult(const std::vector<std::string> &_funcs, const std::vector<double> &_init_guess)
 {
-	auto jacob_matrix = Maths::Calculus::jacobian(_funcs, _init_guess);
-	auto W = Maths::Linear::reverseMatrix(jacob_matrix);
-	std::vector<double> a1;
-	std::vector<double> ini2(_init_guess);
-	for (int i = 0; i < jacob_matrix.size(); ++i)
-	{
-		ini2[i] = _init_guess[i] - 0.1;
-	//	a1.push_back(Maths::Calculus::derivative(_funcs[i], _init_guess, 0));
-	}
-	for (int i = 0; i < jacob_matrix.size(); ++i)
-	{
-		//ini2[i] = _init_guess[i] - 0.1;
-		a1.push_back(Maths::Calculus::derivative(_funcs[i], ini2, 0));
-	}
-	std::vector<double> l1;
-	std::cout << "d vector: ";
-	for (int i = 0; i < jacob_matrix.size(); ++i)
-	{
-		double sum = 0;
-		for (int j = 0 ; j < jacob_matrix.size(); ++j)
-		{
-			sum += W[i][j] * a1[j];
-		}
-		std::cout << sum << ' ';
-		l1.push_back(sum);
-	}
-	std::cout << '\n';
+    auto W = Maths::Linear::reverseMatrix(Maths::Calculus::jacobian(_funcs, _init_guess));
+    std::vector<double> delta_iteration(_init_guess.size(),0.0);
+    std::vector<double> x_vector(_init_guess);
+    auto b = 0;
+    double prev_delta, curr_delta;
+    do
+    {
+         for (size_t i = 0 ; i < x_vector.size(); ++i)
+         {
+            delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, x_vector));
+            x_vector[i] -= delta_iteration[i];
+			std::cout << x_vector[i] << ' ';
+            if(isinf(x_vector[i])|| isnan(x_vector[i]))
+                throw (std::exception("System is not solvable with this initial guess"));
+         }
+		 std::cout << '\n';
+        ++b;
+        curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
+        if(b>10)
+        {
+            if(curr_delta > prev_delta)
+            {
+                throw(std::exception("System does not merge to a single solution with this initial guess"));
+            }
+        }
+        prev_delta = curr_delta;
 
-
-	return true;
-
+    } while(curr_delta >= pressision);
+    return x_vector;
 }

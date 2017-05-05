@@ -66,7 +66,7 @@ T_matrix Maths::Linear::reverseMatrix(const T_matrix& _matrix)
 	double det = determinant(_matrix);
 	if (det == 0)
 	{
-		throw std::exception("bad Matrix");
+        throw std::exception("Bad Initial Guess. Please Change it");
 	}
 	T_matrix out(_matrix.size(), std::vector<double>(_matrix.size()));
 	for (size_t i = 0; i < _matrix.size(); ++i)
