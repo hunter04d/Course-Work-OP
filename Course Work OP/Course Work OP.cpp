@@ -16,25 +16,30 @@ void Init(std::vector<std::string> &_funcs, std::vector<double>& _init_guess,int
 {
 	for(int i = 0; i<_size;++i)
 	{
-		_init_guess.push_back(0);
+		_init_guess.push_back(0.2);
 	}
-	std::string initer;
-	for (int i = 0; i < _size; ++i)
+	for (int j = 0; j < _size; ++j)
 	{
-		initer += "x" + std::to_string(i+1) + '+';
-	}
-	initer.pop_back();
-	size_t pos = 0;
-	for (int i = 0; i < _size; ++i)
-	{
-		std::string init_copy = initer;
-		init_copy.insert(pos, std::to_string(_size));
-		pos = initer.find('+', pos) + 1;
-		if(pos == std::string::npos)
+		std::string initer;
+		int intit_pow = _size - j;
+		for (int i = 0; i < _size; ++i)
 		{
-			pos = 0;
+			if(i==j)
+			{
+				initer += std::to_string(0.1*_size);
+			}
+			//initer += std::to_string(_size);
+			initer +="x" + std::to_string(i + 1) + '^' + std::to_string(intit_pow) + '+';
+			--intit_pow;
+			if (intit_pow == 0)
+			{
+				intit_pow = _size;
+			}	
 		}
-		_funcs.push_back(init_copy);
+		initer.pop_back();
+		//initer.push_back('-');
+		//initer.push_back('1');
+		_funcs.push_back(initer);
 	}
 }
 
@@ -44,11 +49,12 @@ int main()
 {
 
 
-	std::ofstream file("result.txt");
+	std::ofstream file("resultGaussZeidel1000.txt", std::ios_base::app);
+	file << '\n';
 	std::vector<std::string> functions;
 	std::vector<double> init_guess;
 	std::vector<double> res;
-	for (int i = 2; i <= 100; ++i)
+	for(int i = 2; i <= 17;++i)
 	{
 		Init(functions, init_guess, i);
 		for (auto& x : functions)
@@ -56,14 +62,12 @@ int main()
 			preAnalize(x);
 			x = shuntingYard(x,i);
 		}
-		res = Iterative::getResult(functions, init_guess);
+		res = GaussZeidel::getResult(functions, init_guess);
 		auto ended = high_resolution_clock::now();
 		std::string s = std::to_string(duration_cast<duration<double, std::milli>>(ended - begun).count());
 		std::replace(s.begin(), s.end(), '.', ',');
-		file  <<i << '\t' << s <<'\n';
-		std::cout << i << '\n';
+		file <<i << '\t' << s <<'\n';
 		functions.clear();
 		init_guess.clear();
 	}
-	system("pause");
 }

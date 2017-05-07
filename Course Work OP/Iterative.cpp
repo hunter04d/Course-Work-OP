@@ -3,6 +3,7 @@
 #include <math.h>
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 
 size_t number_of_iterations;
 extern std::chrono::time_point<std::chrono::high_resolution_clock> begun;
@@ -34,8 +35,9 @@ std::vector<double> Iterative::getResult(const std::vector<std::string>& _funcs,
     } while (curr_delta >= pressision);
     delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, x_vector));
     curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
-    if(curr_delta <= pressision)
+   if(curr_delta <= pressision)
     {
+		std::cout << number_of_iterations;
          return x_vector;
     }
     throw (std::exception("System is not solvable with this initial guess"));
@@ -72,6 +74,7 @@ std::vector<double> GaussZeidel::getResult(const std::vector<std::string> &_func
      curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
      if(curr_delta <= pressision)
      {
+		 std::cout << number_of_iterations;
           return x_vector;
      }
      throw (std::exception("System is not solvable with this initial guess"));
