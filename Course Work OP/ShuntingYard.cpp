@@ -45,6 +45,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
 	size_t pos(0);
 	Stack<std::string> stack;
 	bool last_was_func = false;
+    bool last_was_operator = false;
 	std::string out;
     std::vector<bool> has_variable(_function_number, false);
 	while (pos < _in.size())
@@ -67,6 +68,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
             }
 			pos += var_pair;
 			last_was_func = false;
+            last_was_operator = false;
 			continue;
 		}
 		// Number
@@ -76,6 +78,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
 			out += (_in.substr(pos, num_len) + ' ');
 			pos += num_len;
 			last_was_func = false;
+            last_was_operator = false;
 			continue;
 		}
 		// Braces
@@ -84,6 +87,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
 			stack.push("(");
 			++pos;
 			last_was_func = false;
+            last_was_operator = false;
 			continue;
 		}
 		if (curr_char == ')')
@@ -108,11 +112,19 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
 			}
 			++pos;
 			last_was_func = false;
+            last_was_operator = false;
 			continue;
 		}
 		// Operators
 		if (isOperator(curr_char))
-		{
+        {
+            if(last_was_operator)
+            {
+                std::string exception_happened( "No second operant after operator \"");
+                exception_happened.push_back(curr_char);
+                exception_happened +="\" at position " + std::to_string(pos+1);
+                throw(std::exception(exception_happened.c_str()));
+            }
 			while (!stack.empty() && operatorCompare(curr_char, stack.top()))
 			{
 				out += stack.pop() + ' ';
@@ -120,6 +132,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
 			stack.push(std::string(1, curr_char));
 			++pos;
 			last_was_func = false;
+            last_was_operator = true;
 			continue;
 		}
 		// Functions
@@ -127,6 +140,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
 		if (func_len != -1)
 		{
 			last_was_func = true;
+            last_was_operator = false;
 			stack.push(_in.substr(pos, func_len));
 			stack.push("(");
 			pos += func_len + 1;
@@ -147,6 +161,10 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
         {
             throw std::exception("Not all variables are present");
         }
+    }
+    if(last_was_operator)
+    {
+        throw(std::exception("operator without a second operant at the end of the function"));
     }
 	return out;
 }
@@ -273,7 +291,7 @@ int getFuncToken(const std::string& _in, size_t _pos /*= 0*/)
 		}
 		if (isFunction(_in.substr(_pos, count)))
             return int(count);
-		std::string exception_happened = "Unknown function token at position " + std::to_string(_pos + 1) + ' ' + _in.substr(_pos, count);
+        std::string exception_happened = "Unknown token at position " + std::to_string(_pos + 1) + ' ' + _in.substr(_pos, count);
 		throw std::exception(exception_happened.c_str());
 	}
 	return -1;

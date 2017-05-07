@@ -95,27 +95,6 @@ std::vector<double> Maths::Linear::multiplyMatrixByVector(const T_matrix& _matri
 	return out;
 }
 
-double Maths::Linear::hNorm(const T_matrix& _matrix, size_t _row)
-{
-	double sum = 0;
-	for (const auto& x : _matrix[_row])
-	{
-		sum += abs(x);
-	}
-	return sum;
-}
-
-double Maths::Linear::vNorm(const T_matrix & _matrix, size_t _col)
-{
-	double sum = 0;
-	for(size_t i = 0; i < _matrix.size(); ++i)
-	{
-
-		sum += abs(_matrix[i][_col]);
-	}
-	return sum;
-}
-
 std::vector<double> Maths::calcFuncVector(const std::vector<std::string>& _func, std::vector<double> arg_vals)
 {
 	std::vector<double> out;

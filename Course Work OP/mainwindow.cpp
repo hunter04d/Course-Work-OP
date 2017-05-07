@@ -3,7 +3,9 @@
 #include "ShuntingYard.h"
 #include "Iterative.h"
 #include<string>
+#include <chrono>
 #include <QDebug>
+
 
 const int MAX_FUNC_NUMBER = 10;
 
@@ -119,6 +121,7 @@ void MainWindow::on_FunctionsTable_cellChanged(int row, int column)
    catch(std::exception _exception)
    {
        ui->statusBar->showMessage("Function " + QString::number(row+1) + ": " + _exception.what());
+       function_is_fine.at(row) = false;
        ui->FunctionsTable->item(row,column)->setBackgroundColor({255,0,0});
    }
 }
@@ -160,9 +163,10 @@ void MainWindow::on_InitTable_cellChanged(int row, int column)
     {
          ui->InitTable->item(row,column)->setText("");
          initial_guess_is_fine.at(row) = false;
+         ui->statusBar->showMessage("Intial guess for x" + QString::number(row+1) + ": " + "Only a number can be entered");
     }
 }
-
+size_t number_of_iterations = 0;
 void MainWindow::on_SolvePushButton_clicked()
 {
     std::vector<std::string> useful_funcs(functions.cbegin(),functions.cbegin()+ ui->spinBox->value());
@@ -176,23 +180,26 @@ void MainWindow::on_SolvePushButton_clicked()
     std::vector<double> useful_guess(initial_guess.cbegin(),initial_guess.cbegin()+ ui->spinBox->value());
     try
     {
+        auto begun_time = std::chrono::high_resolution_clock::now();
         auto result = ui->SIMButton->isChecked()? Iterative::getResult(useful_funcs, useful_guess): GaussZeidel::getResult(useful_funcs, useful_guess);
         for(int i = 0; i < result.size();++i)
         {
-            ui->ResultsTable->item(i,0)->setText(QString::number(result[i]));
+            ui->ResultsTable->item(i,0)->setText(QString::number(result[i],'f',5));
         }
+        auto ended_time = std::chrono::high_resolution_clock::now();
+        ui->TimeLabel->setText("Time taken: <b>" + QString::number(round(std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(ended_time - begun_time).count()*1000.0)/1000.0)+"ms</b>");
+        ui->IterationLabel->setText("Number of iterations: <b>" + QString::number(number_of_iterations) + "</b>");
         ui->StatisticsBox->show();
 
         ui->statusBar->showMessage("Solved!!! See statistics above");
     }
     catch(std::exception _exception)
     {
-        ui->statusBar->showMessage(_exception.what());
+         ui->statusBar->showMessage(_exception.what());
          ui->StatisticsBox->hide();
          for(int i = 0; i < MAX_FUNC_NUMBER; ++i)
          {
              ui->ResultsTable->item(i,0)->setText("");
          }
     }
-
 }
