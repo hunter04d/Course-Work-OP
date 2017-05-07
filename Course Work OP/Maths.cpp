@@ -1,4 +1,5 @@
 ﻿#include "Maths.h"
+#include <iostream>
 
 using Maths::T_matrix;
 double Maths::Calculus::derivative(const std::string&_func, std::vector<double> _arg_vals, size_t _by_arg)
@@ -75,6 +76,62 @@ T_matrix Maths::Linear::reverseMatrix(const T_matrix& _matrix)
 		{
 			out[j][i] = (1/det)*algebraicExtention(_matrix, i, j);
 		}
+	}
+	return out;
+}
+
+T_matrix Maths::Linear::reverseMatrixGauss(const T_matrix& _matrix)
+{
+	int  n = _matrix.size();
+	auto extended_matrix = _matrix;
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < n; ++j)
+		{
+			if (j == i)
+			{
+				extended_matrix[i].push_back(1);
+			}
+			else { extended_matrix[i].push_back(0); }
+		}
+	}
+
+	/************** partial pivoting **************/
+	for (int i = n - 1; i > 0; --i)
+	{
+		if (extended_matrix[i - 1][0] < extended_matrix[i][0])
+		{
+			std::swap(extended_matrix[i], extended_matrix[i - 1]);
+		}
+	}
+	/********** reducing to diagonal  matrix ***********/
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (i != j)
+			{
+				double temp = extended_matrix[j][i] / extended_matrix[i][i];
+				for (int k = 0; k < n * 2; k++)
+				{
+					extended_matrix[j][k] -= extended_matrix[i][k] * temp;
+				}
+			}
+		}
+	}
+	/************** reducing to unit matrix *************/
+	for (int i = 0; i < n; ++i)
+	{
+		double diag_elem = extended_matrix[i][i];
+		for (int j = 0; j < n * 2; ++j)
+		{
+			extended_matrix[i][j] /=  diag_elem;
+		}
+	}
+	T_matrix out;
+	for(auto vector : extended_matrix)
+	{
+		out.emplace_back(vector.cbegin() + n, vector.cend());
 	}
 	return out;
 }

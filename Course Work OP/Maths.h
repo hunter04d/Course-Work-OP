@@ -22,6 +22,7 @@ namespace Maths
 		double determinant(const T_matrix& _matrix);
 		double algebraicExtention(const T_matrix& _matrix, size_t _row, size_t _col);
 		T_matrix reverseMatrix(const T_matrix& _matrix);
+		T_matrix reverseMatrixGauss(const T_matrix& _matrix);
 		std::vector<double> multiplyMatrixByVector(const T_matrix& _matrix, const std::vector<double> _vector);
 		double hNorm(const T_matrix& _matrix, size_t _row);
 		double vNorm(const T_matrix& _matrix, size_t _col);
