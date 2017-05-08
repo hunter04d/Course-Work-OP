@@ -9,7 +9,6 @@
 
 void preAnalize(std::string& _in) // insert * when makes sence
 {
-    _in.erase(std::remove_if(_in.begin(), _in.end(), std::isspace), _in.end());
     for(size_t i = 0u; i < _in.size();++i)
     {
         char& curr_char = _in[i];
@@ -195,7 +194,6 @@ double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_va
 		{
 			if (isOperator(token[0]))
 			{
-
 				double operant2(numbers.pop()), operant1(numbers.pop());
 				const T_Operator& v_operator = getOperator(token[0]);
 				numbers.push(v_operator.function(operant1, operant2));

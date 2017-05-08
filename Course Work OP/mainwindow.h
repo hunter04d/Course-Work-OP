@@ -36,6 +36,7 @@ private:
     std::vector<double> result;
 
     bool isFine();
+    void writeToFile(double _time);
 };
 
 #endif // MAINWINDOW_H

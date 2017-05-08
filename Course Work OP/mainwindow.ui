@@ -103,7 +103,7 @@
     <property name="flat">
      <bool>false</bool>
     </property>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -158,12 +158,12 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>60</y>
-      <width>661</width>
+      <width>662</width>
       <height>341</height>
      </rect>
     </property>
@@ -428,7 +428,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox">
+          <widget class="QCheckBox" name="WriteToFilecheckBox">
            <property name="text">
             <string>Write the process to file</string>
            </property>
@@ -465,17 +465,7 @@
      </item>
     </layout>
    </widget>
-   <zorder>spinBox</zorder>
-   <zorder>horizontalSlider</zorder>
-   <zorder>FunctionsTable</zorder>
-   <zorder>InitTable</zorder>
-   <zorder>ResultsTable</zorder>
-   <zorder>FunctionsTable</zorder>
-   <zorder>SIMButton</zorder>
-   <zorder>GZMButton</zorder>
-   <zorder>SolvePushButton</zorder>
-   <zorder>horizontalSpacer</zorder>
-   <zorder>label</zorder>
+   <zorder>layoutWidget</zorder>
    <zorder>groupBox</zorder>
    <zorder>StatisticsBox</zorder>
    <zorder>groupBox_2</zorder>
