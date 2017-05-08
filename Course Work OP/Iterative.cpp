@@ -26,7 +26,7 @@ std::vector<double> Iterative::getResult(const std::vector<std::string>& _funcs,
         curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
         if(number_of_iterations>10)
         {
-            if(curr_delta > prev_delta)
+            if(curr_delta >= prev_delta)
                 throw (std::exception("System is not solvable with this initial guess"));
         }
         prev_delta = curr_delta;
@@ -60,7 +60,7 @@ std::vector<double> GaussZeidel::getResult(const std::vector<std::string> &_func
         curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
         if(number_of_iterations>10)
         {
-            if(curr_delta > prev_delta)
+            if(curr_delta >= prev_delta)
                 throw (std::exception("System is not solvable with this initial guess"));
         }
         prev_delta = curr_delta;
