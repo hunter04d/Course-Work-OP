@@ -14,13 +14,14 @@ bool Maths::allVariablesArePresent(std::vector<std::string> _funcs)
         {
             if (token[0] == 'x')
             {
-                has_var[std::stoi(token.substr(1))] = true;
+                has_var.at(std::stoi(token.substr(1))-1) = true;
             }
         }
+        stream.clear();
     }
     for(const auto &x: has_var)
     {
-        if(x==false)
+        if(x == false)
         {
             return false;
         }
