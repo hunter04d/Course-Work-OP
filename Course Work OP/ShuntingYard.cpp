@@ -118,13 +118,17 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
 			continue;
 		}
 		// Operators
-		if (isOperator(curr_char))
+        if (isOperator(curr_char))
         {
+            if(pos == 0)
+            {
+                throw(std::exception("operator at the beginig of a function"));
+            }
             if(last_was_operator)
             {
                 std::string exception_happened( "No second operant after operator \"");
                 exception_happened.push_back(curr_char);
-                exception_happened +="\" at position " + std::to_string(pos+1);
+                exception_happened +="\" at position " + std::to_string(pos);
                 throw(std::exception(exception_happened.c_str()));
             }
 			while (!stack.empty() && operatorCompare(curr_char, stack.top()))
@@ -194,12 +198,20 @@ double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_va
 		{
 			if (isOperator(token[0]))
 			{
+                if(numbers.size()< 2)
+                {
+                    throw std::exception("incorrect intput");
+                }
 				double operant2(numbers.pop()), operant1(numbers.pop());
 				const T_Operator& v_operator = getOperator(token[0]);
 				numbers.push(v_operator.function(operant1, operant2));
 			}
 			else // isFunction(token)
 			{
+                if(numbers.empty())
+                {
+                    throw std::exception("incorrect intput");
+                }
 				double argument(numbers.pop());
 				const T_UnaryFunction& v_function = getFunction(token);
 				numbers.push(v_function.functions(argument));
@@ -211,19 +223,30 @@ double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_va
 
 int getVariableToken(const std::string& _in, size_t _pos,size_t _function_number)
 {
-    if (_in[_pos] == 'x' || (_pos == 0 && _in[_pos] == '-') || (_in[_pos] == '-' && (_in[_pos - 1] == '(' || isOperator(_in[_pos - 1]))))
+    if (_in[_pos] == 'x' || (_pos == 0 && _in[_pos] == '-') || (_in[_pos] == '-' && _in[_pos - 1] == '('))
     {
         bool has_minus = false;
         int count = 1;
         if (_pos < _in.size() - 1)
         {
-            if (_in[_pos] == '-' && _in[_pos + 1] == 'x')
+            if (_in[_pos] == '-')
             {
-                has_minus = true;
-                ++count;
+                if(_in[_pos + 1] == 'x')
+                {
+                    has_minus = true;
+                    ++count;
+                }
+                else return -1;
             }
         }
-        else { throw std::exception("trailing minus at the end of the function"); }
+        else
+        {
+            if(_in[_pos] == '-')
+            {
+                throw std::exception("trailing minus at the end of the function");
+            }
+            else throw std::exception("x must have a number after it");
+        }
         for (size_t i = _pos + count; i < _in.size(); ++i)
         {
             if (isdigit(_in[i]))
@@ -247,35 +270,39 @@ int getVariableToken(const std::string& _in, size_t _pos,size_t _function_number
 
 int getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
 {
-	// number is defined as any number of digits, one dot is possible and unary minus assuming it is in the beginning of the str or has '(' before it 
-	if (isdigit(_in[_pos]) || (_pos == 0 && _in[_pos] == '-') || (_in[_pos] == '-' && (_in[_pos - 1] == '(' || isOperator(_in[_pos - 1]))))
-	{
-		size_t count = 1;
-		bool dottag = false;
+    // number is defined as any number of digits, one dot is possible and unary minus assuming it is in the beginning of the str or has '(' before it
+    if (isdigit(_in[_pos]) || (_pos == 0 && _in[_pos] == '-') || (_in[_pos] == '-' && _in[_pos - 1] == '('))
+    {
+        size_t count = 1;
+        bool dottag = false;
         for (size_t i = _pos + 1; i < _in.size(); ++i)
-		{
-			if (isdigit(_in[i]))
-			{
-				++count;
-			}
-			else if (_in[i] == '.' && dottag == false)
-			{
-				if (dottag == false)
-				{
-					dottag = true; ++count;
-				}
-				//more then one dot in a num
-				else 
-				{
-					std::string exception_happened = "Unrecognized dot at position " + std::to_string(_pos + count + 1);
-					throw std::exception(exception_happened.c_str());
-				}
-			}
-			else { break; }
-		}
+        {
+            if (isdigit(_in[i]))
+            {
+                ++count;
+            }
+            else if (_in[i] == '.' && dottag == false)
+            {
+                if (dottag == false)
+                {
+                    dottag = true; ++count;
+                }
+                //more then one dot in a num
+                else
+                {
+                    std::string exception_happened = "Unrecognized dot at position " + std::to_string(_pos + count + 1);
+                    throw std::exception(exception_happened.c_str());
+                }
+            }
+            else { break; }
+        }
+        if(count==1 && _in[_pos] == '-')
+        {
+            return -1;
+        }
         return int(count);
-	}
-	return -1;
+    }
+    return -1;
 }
 
 int getFuncToken(const std::string& _in, size_t _pos /*= 0*/)

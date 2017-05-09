@@ -10,6 +10,7 @@ namespace Maths
 	{
 		return _pow % 2 ? -1 : 1;
 	}
+    bool allVariablesArePresent(std::vector<std::string> _funcs);
 	std::vector<double> calcFuncVector(const std::vector<std::string>&_func, std::vector<double> arg_vals);
 	namespace Calculus 
 	{

@@ -407,7 +407,7 @@
          <item>
           <widget class="QRadioButton" name="GZMButton">
            <property name="text">
-            <string>Gauss-Zeidel Method</string>
+            <string>Gauss-Seidel Method</string>
            </property>
           </widget>
          </item>

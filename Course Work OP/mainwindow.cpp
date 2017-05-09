@@ -114,6 +114,8 @@ void MainWindow::on_FunctionsTable_cellChanged(int row, int column)
      }
      preAnalize(func);
      functions.at(row) = shuntingYard(func, ui->spinBox->value());
+     std::vector<double> test_guess(ui->spinBox->value(),0);
+     calculateFunc(functions.at(row), test_guess);
       ui->statusBar->showMessage("Function " + QString::number(row+1) + " is ok",2000);
       ui->FunctionsTable->item(row,column)->setBackgroundColor({255,255,255});
       function_is_fine.at(row) = true;
@@ -123,12 +125,19 @@ void MainWindow::on_FunctionsTable_cellChanged(int row, int column)
            ui->SolvePushButton->setEnabled(true);
       }
    }
-   catch(std::exception _exception)
+   catch(std::exception& _exception)
    {
        ui->statusBar->showMessage("Function " + QString::number(row+1) + ": " + _exception.what());
        function_is_fine.at(row) = false;
        ui->FunctionsTable->item(row,column)->setBackgroundColor({255,0,0});
    }
+   catch(...)
+   {
+       ui->statusBar->showMessage("Function " + QString::number(row+1) + ": " "something is horribly wrong");
+       function_is_fine.at(row) = false;
+       ui->FunctionsTable->item(row,column)->setBackgroundColor({255,0,0});
+   }
+
 }
 
 bool MainWindow::isFine()
@@ -181,7 +190,22 @@ void MainWindow::on_SolvePushButton_clicked()
     std::sort(copy.begin(),copy.end());
     if(std::unique(copy.begin(),copy.end()) != copy.end())
     {
-         ui->statusBar->showMessage("Error: Some functions are duplicates. A single isolated solution does not exist");
+        ui->statusBar->showMessage("Error: Some functions are duplicates. A single isolated solution does not exist");
+        ui->StatisticsBox->hide();
+        for(int i = 0; i < MAX_FUNC_NUMBER; ++i)
+        {
+            ui->ResultsTable->item(i,0)->setText("");
+        }
+        return;
+    }
+    if(!Maths::allVariablesArePresent(useful_funcs))
+    {
+        ui->statusBar->showMessage("Error: Not all variables are present in functions");
+        ui->StatisticsBox->hide();
+        for(int i = 0; i < MAX_FUNC_NUMBER; ++i)
+        {
+            ui->ResultsTable->item(i,0)->setText("");
+        }
         return;
     }
     std::vector<double> useful_guess(initial_guess.cbegin(),initial_guess.cbegin()+ ui->spinBox->value());

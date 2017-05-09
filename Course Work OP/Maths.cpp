@@ -1,6 +1,33 @@
 ﻿#include "Maths.h"
+#include<sstream>
 
 using Maths::T_matrix;
+bool Maths::allVariablesArePresent(std::vector<std::string> _funcs)
+{
+    std::string token;
+    std::istringstream stream;
+    std::vector<bool> has_var(_funcs.size(),false);
+    for(const auto& x: _funcs)
+    {
+        stream.str(x);
+        while (stream >> token)
+        {
+            if (token[0] == 'x')
+            {
+                has_var[std::stoi(token.substr(1))] = true;
+            }
+        }
+    }
+    for(const auto &x: has_var)
+    {
+        if(x==false)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 double Maths::Calculus::derivative(const std::string&_func, std::vector<double> _arg_vals, size_t _by_arg)
 {
 	auto variable = _arg_vals[_by_arg];
