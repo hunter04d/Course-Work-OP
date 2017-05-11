@@ -1,15 +1,24 @@
 ﻿#pragma once
 
+/**
+ *Stack realisation
+ * T: values it the stack
+ */
 template <typename T>
 class Stack
 {
-	struct list
+	struct list // the underling linked list of the Stack
 	{
 		T value;
 		list* next_ptr;
 	} *head = nullptr;
-	size_t F_size = 0;
+	size_t F_size = 0; //size of the stack
 public:
+
+	/**
+	 * @brief push - method to push the value onto the stack
+	 * @param value - pushed value
+	 */
 	void push(const T& value)
 	{
 		++F_size;
@@ -19,6 +28,10 @@ public:
 		head = temp;
 	}
 
+	/**
+	 * @brief pop - method to pop the value out
+	 * @return poped value
+	 */
 	T pop()
 	{
 		--F_size;
@@ -28,16 +41,28 @@ public:
 		delete temp;
 		return val;
 	}
+
+	/**
+	 * @brief top method to access the top element
+	 * @return reference to the top element
+	 */
 	const T& top() const
 	{
 		return head->value;
 	}
-
+	/**
+	 * @brief size - method that returns size of the stack
+	 * @return size of the stack
+	 */
 	size_t size() const
 	{
 		return F_size;
 	}
 
+	/**
+	 * @brief empty - method that checkes if the stack is empty
+	 * @return true if it is empty, else - false
+	 */
 	bool empty() const
 	{
 		return (F_size == 0);

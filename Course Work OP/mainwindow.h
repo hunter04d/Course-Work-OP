@@ -28,14 +28,15 @@ private slots:
     void on_SolvePushButton_clicked();
 
 private:
-    Ui::MainWindow *ui;
-    std::vector<std::string> functions;
-    std::vector<bool> function_is_fine;
-    std::vector<double> initial_guess;
-    std::vector<bool> initial_guess_is_fine;
-    std::vector<double> result;
+	Ui::MainWindow *ui; // ui implementation
+	std::vector<std::string> functions; // function is postfix notation
+	std::vector<bool> function_is_fine; //flags to check the states of the functions
+	std::vector<double> initial_guess; // intial guess
+	std::vector<bool> initial_guess_is_fine; // flags to check the states of the intial guess
+	std::vector<double> result; //results
 
     bool isFine();
+
     void writeToFile(double _time);
 };
 

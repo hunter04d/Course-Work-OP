@@ -27,14 +27,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     Operators.cpp \
     ShuntingYard.cpp \
-    Iterative.cpp \
-    Maths.cpp
+    Maths.cpp \
+    Methods.cpp
 
 HEADERS  += mainwindow.h \
     Operators.h \
     ShuntingYard.h \
     Stack.h \
-    Iterative.h \
-    Maths.h
+    Maths.h \
+    Methods.h
 
 FORMS    += mainwindow.ui

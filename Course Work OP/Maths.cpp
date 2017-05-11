@@ -2,6 +2,12 @@
 #include<sstream>
 
 using Maths::T_matrix;
+
+/**
+ * @brief Maths::allVariablesArePresent - function to check if all variable tokens are present in _funcs
+ * @param _funcs - functions to check in postfix notation
+ * @return true if all variables are present (the same number as the numbe of functions), else false
+ */
 bool Maths::allVariablesArePresent(std::vector<std::string> _funcs)
 {
     std::string token;
@@ -39,6 +45,12 @@ double Maths::Calculus::derivative(const std::string&_func, std::vector<double> 
 	return (func_at_plus_dx - func_at_minus_dx) / (2 * delta_x);
 }
 
+/**
+ * @brief Maths::Calculus::jacobian - get Jacobi matrix of functions _funcs at point _point
+ * @param _funcs - functions
+ * @param _point - point in which jacobian is calculated
+ * @return Jacobi matrix
+ */
 T_matrix Maths::Calculus::jacobian(const std::vector<std::string> _funcs, std::vector<double> _point)
 {
 	T_matrix out(_funcs.size(), std::vector<double>(_funcs.size()));
@@ -106,7 +118,12 @@ T_matrix Maths::Linear::reverseMatrix(const T_matrix& _matrix)
 	}
 	return out;
 }
-
+/**
+ * @brief Maths::Linear::multiplyMatrixByVector - function multiply a matrix by a vector
+ * @param _matrix - matrix
+ * @param _vector - vector which is matrix is multiplied by
+ * @return vector, product of _matrix and _vector
+ */
 std::vector<double> Maths::Linear::multiplyMatrixByVector(const T_matrix& _matrix, const std::vector<double> _vector)
 {
 	size_t r = _vector.size();
@@ -122,7 +139,12 @@ std::vector<double> Maths::Linear::multiplyMatrixByVector(const T_matrix& _matri
 	}
 	return out;
 }
-
+/**
+ * @brief Maths::calcFuncVector - function that calculates value of functions _func at point arg_vals
+ * @param _func - functions in postfix notation
+ * @param arg_vals - Point to calculate in
+ * @return values of functions at point arg_vals
+ */
 std::vector<double> Maths::calcFuncVector(const std::vector<std::string>& _func, std::vector<double> arg_vals)
 {
 	std::vector<double> out;

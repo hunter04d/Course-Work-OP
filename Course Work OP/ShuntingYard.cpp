@@ -6,12 +6,17 @@
 #include <algorithm>
 #include "Stack.h"
 
-void preAnalize(std::string& _in) // insert * when makes sence
+/**
+ * @brief preAnalize - function that converts an expression from mathematical to one that can be procced by shunting yard
+ * it mosty just inserts * where it can implied
+ * @param _in - string to preanalize, changes are made to this string
+ */
+void preAnalize(std::string& _in)
 {
     for(size_t i = 0u; i < _in.size();++i)
     {
         char& curr_char = _in[i];
-        if (curr_char == '(' && i != 0)
+		if (curr_char == '(' && i != 0)// before a left brace if the last token was a operand
         {
             if (isdigit(_in[i - 1]))
             {
@@ -30,12 +35,12 @@ void preAnalize(std::string& _in) // insert * when makes sence
                     _in.insert(_in.begin() + i, '*');
                 }
             }
-			if(_in[i-1] == ')')
+			if(_in[i-1] == ')')//in between left and right brace
 			{
 				 _in.insert(_in.begin() + i, '*');
 			}
         }
-        if (isalpha(curr_char) && i != 0)
+		if (isalpha(curr_char) && i != 0) // in between a function token and a operand
         {
             if (isdigit(_in[i - 1]))
             {
@@ -45,15 +50,23 @@ void preAnalize(std::string& _in) // insert * when makes sence
     }
 }
 
-
-//TODO: a state machine would fix a lot of bugs
+/**
+ * @brief shuntingYard - function to convert a function from infix to postfix notation
+ * @param _in - input function in infix notation
+ * @param _function_number - total number of functions to expect (max number of variables allowed)
+ * @return function in posfix notation ready to be calculed
+ */
 std::string shuntingYard(const std::string& _in, size_t _function_number) //to RPN
 {
     size_t pos(0);
     Stack<std::string> stack;
-	bool had_variable = false;
-    bool last_was_func = false;
-    bool last_was_operator = false;
+	bool had_variable = false; // flag to check if a variable is present
+	bool last_was_func = false; // flag to check is last token was function
+	enum E_StateMachine // state machine to check the input correctness
+	{
+		expect_operator,
+		expect_operand
+	}state = expect_operand;
     std::string out;
    // std::vector<bool> has_variable(_function_number, false);
     while (pos < _in.size())
@@ -67,8 +80,8 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
 			// has_variable.at(std::stoi(_in.substr(pos+1,var_pair-1))-1) = true;
             pos += var_pair;
             last_was_func = false;
-            last_was_operator = false;
 			had_variable = true;
+			state = expect_operator;
             continue;
         }
         // Number
@@ -78,7 +91,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
             out += (_in.substr(pos, num_len) + ' ');
             pos += num_len;
             last_was_func = false;
-            last_was_operator = false;
+			state = expect_operator;
             continue;
         }
         // Braces
@@ -87,7 +100,6 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
             stack.push("(");
             ++pos;
             last_was_func = false;
-            last_was_operator = false;
             continue;
         }
         if (curr_char == ')')
@@ -96,6 +108,12 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
             {
                 throw std::exception("Empty function argument list");
             }
+			if(state != expect_operator)
+			{
+				std::string exception_happened("After a closing right brace at pos ");
+				exception_happened += std::to_string(pos+1) + " there has to be an operator";
+				throw(std::exception(exception_happened.c_str()));
+			}
             bool found_left_parenthesis = false;
             while (!(stack.empty() || (found_left_parenthesis = stack.top() == "(")))
             {
@@ -105,14 +123,13 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
             {
                 throw std::exception("Mismatched Parenthesis");
             }
-            stack.pop();
+			stack.pop(); // the left brace at the top
             if (!stack.empty() && isFunction(stack.top()))
             {
                 out += stack.pop() + ' ';
             }
             ++pos;
             last_was_func = false;
-            last_was_operator = false;
             continue;
         }
         // Unary Minus
@@ -123,7 +140,6 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
                 stack.push("unary_minus");
                 ++pos;
                 last_was_func = false;
-                last_was_operator = false;
                 continue;
             }
         }
@@ -134,11 +150,10 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
             {
                 throw(std::exception("operator at the beginning of a function"));
             }
-            if(last_was_operator)
+			if(state != expect_operator)
             {
-                std::string exception_happened( "No second operant after operator \"");
-                exception_happened.push_back(curr_char);
-                exception_happened +="\" at position " + std::to_string(pos);
+				std::string exception_happened( "Unexpected operator at position ");
+				exception_happened += std::to_string(pos+1);
                 throw(std::exception(exception_happened.c_str()));
             }
             while (!stack.empty() && operatorCompare(curr_char, stack.top()))
@@ -148,24 +163,24 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
             stack.push(std::string(1, curr_char));
             ++pos;
             last_was_func = false;
-            last_was_operator = true;
+			state = expect_operand;
             continue;
         }
         // Functions
         int func_len = getFuncToken(_in, pos);
         if (func_len != -1)
         {
-            last_was_func = true;
-            last_was_operator = false;
             stack.push(_in.substr(pos, func_len));
             stack.push("(");
             pos += func_len + 1;
+			last_was_func = true;
+			state = expect_operand;
             continue;
         }
         std::string exception_happened = "Unknown token at position " + std::to_string(pos + 1);
         throw std::exception(exception_happened.c_str());
     }
-    while (!stack.empty())
+	while (!stack.empty())
     {
         if (stack.top() == "(")
             throw std::exception("Error: Mismatched parenthesis");
@@ -180,7 +195,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
         }
     }
 */
-    if(last_was_operator)
+	if(state == expect_operand)
     {
         throw(std::exception("operator without a second operant at the end of the function"));
     }
@@ -191,16 +206,21 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
     return out;
 }
 
-
+/**
+ * @brief calculateFunc - function that takes a function in RPN and a point and get's function value at that point
+ * @param _RPN - function in postfix notation
+ * @param _arg_vals - point at which to calculate
+ * @return a value of a function at that point
+ */
 double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_vals)
 {
     std::istringstream stream(_RPN);
     Stack<double> numbers;
     std::string token;
     double number_token;
-    while (stream >> token)
+	while (stream >> token) // read a token
     {
-        if (token[0] == 'x')
+		if (token[0] == 'x') // if it is a variable push it's value on to the stack
         {
             numbers.push(_arg_vals[std::stoi(token.substr(1))-1]);
         }
@@ -228,13 +248,20 @@ double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_va
                 }
                 double argument(numbers.pop());
                 const T_UnaryFunction& v_function = getFunction(token);
-                numbers.push(v_function.functions(argument));
+				numbers.push(v_function.function(argument));
             }
         }
     }
     return numbers.top();
 }
 
+/**
+ * @brief getVariableToken - check is there is a spaning variable token at this position and if there is output it's length
+ * @param _in - input string
+ * @param _pos - position to check from
+ * @param _function_number - maximum numbered variable to expect
+ * @return -1 if not a variable, else - the lenght of a variable (>2 since each variable must be numbered)
+ */
 int getVariableToken(const std::string& _in, size_t _pos,size_t _function_number)
 {
     if (_in[_pos] == 'x')
@@ -260,10 +287,15 @@ int getVariableToken(const std::string& _in, size_t _pos,size_t _function_number
     }
     return -1;
 }
-
+/**
+ * @brief getNumberToken - function that checks if there is a spaning number token at this position and if there is output it's length
+ * @param _in - input string
+ * @param _pos - position to check at
+ * @return -1 if it is not a number token, else the length of a token
+ */
 int getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
 {
-    // number is defined as any number of digits, one dot is possible and unary minus assuming it is in the beginning of the str or has '(' before it
+	// number is defined as any number of digits, one dot is possible
     if (isdigit(_in[_pos]))
     {
         size_t count = 1;
@@ -293,7 +325,12 @@ int getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
     }
     return -1;
 }
-
+/**
+ * @brief getFuncToken -function that checks if there is a spaning function token at this position and if there is output it's length
+ * @param _in - input string
+ * @param _pos - positon to check at
+ * @return -1 if it is a function token, else the length of a token
+ */
 int getFuncToken(const std::string& _in, size_t _pos /*= 0*/)
 {
     //function is defined as letters and numbers until '(' starting with !!!a letter!!!
@@ -324,16 +361,21 @@ int getFuncToken(const std::string& _in, size_t _pos /*= 0*/)
     return -1;
 }
 
-// compare operator precedence
+/**
+ * @brief operatorCompare - function that compares presedence of the current operator and the operator (or a left brace or a function) on top of the stack
+ * @param _in_char - operator
+ * @param _tops_of_stack - operator at the top of the stack
+ * @return true if top of stack presedence is less(based on the associativity tag, and false otherwise
+ */
 bool operatorCompare(char _in_char, const std::string& _tops_of_stack)
 {
     const T_Operator& curr_operator = getOperator(_in_char);
-    size_t top_of_stack_presedence;
-    if (_tops_of_stack == "(")
+	size_t top_of_stack_presedence;
+	if (_tops_of_stack == "(") // brace is not an operator
     {
         top_of_stack_presedence = 0;
     }
-    else if(_tops_of_stack == "unary_minus")
+	else if(_tops_of_stack == "unary_minus") //unary minis aplies only to one operand
     {
         top_of_stack_presedence = 1000;
     }
@@ -341,10 +383,8 @@ bool operatorCompare(char _in_char, const std::string& _tops_of_stack)
     {
         top_of_stack_presedence = getOperator(_tops_of_stack.at(0)).presedence;
     }
-    if ((curr_operator.associativity == T_Operator::E_left &&
-        curr_operator.presedence <= top_of_stack_presedence) ||
-        (curr_operator.associativity == T_Operator::E_right &&
-            curr_operator.presedence < top_of_stack_presedence))
+	if ((curr_operator.associativity == T_Operator::E_left && curr_operator.presedence <= top_of_stack_presedence) ||
+		(curr_operator.associativity == T_Operator::E_right && curr_operator.presedence < top_of_stack_presedence))
     {
         return true;
     }

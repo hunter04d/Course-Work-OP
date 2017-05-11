@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ShuntingYard.h"
-#include "Iterative.h"
+#include "Methods.h"
 #include "Maths.h"
 #include <fstream>
 #include <ctime>
@@ -11,8 +11,11 @@
 #include <QDebug>
 
 
-const int MAX_FUNC_NUMBER = 10;
-
+const int MAX_FUNC_NUMBER = 10; // max number of functios supported
+/**
+ * @brief MainWindow::MainWindow - ui constructor
+ *
+ */
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow), functions(MAX_FUNC_NUMBER), function_is_fine(MAX_FUNC_NUMBER, false),  initial_guess(MAX_FUNC_NUMBER), initial_guess_is_fine(MAX_FUNC_NUMBER,false), result(MAX_FUNC_NUMBER)
@@ -54,6 +57,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+/**
+ * @brief MainWindow::on_spinBox_valueChanged - slot that checks when the spindox of the number of functions has changed
+ * @param new_val - new value
+ */
 void MainWindow::on_spinBox_valueChanged(int new_val)
 {
     ui->SolvePushButton->setEnabled(false);
@@ -94,11 +101,20 @@ void MainWindow::on_spinBox_valueChanged(int new_val)
     }
 }
 
+/**
+ * @brief MainWindow::on_horizontalSlider_valueChanged - slot that checks the value of a horisontal slider and aplies it's value to a spin box
+ * @param _new_value - new value
+ */
 void MainWindow::on_horizontalSlider_valueChanged(int _new_value)
 {
     ui->spinBox->setValue(_new_value);
 }
 
+/**
+ * @brief MainWindow::on_FunctionsTable_cellChanged - slot that motitors the value change it a Functions table
+ * @param row - row where the change acurred
+ * @param column - column where that happened
+ */
 void MainWindow::on_FunctionsTable_cellChanged(int row, int column)
 {
    ui->SolvePushButton->setEnabled(false);
@@ -140,6 +156,10 @@ void MainWindow::on_FunctionsTable_cellChanged(int row, int column)
 
 }
 
+/**
+ * @brief MainWindow::isFine - function that checks if all the values in table are ok
+ * @return true is they are, else false
+ */
 bool MainWindow::isFine()
 {
     for(int i = 0; i < ui->spinBox->value(); ++i)
@@ -156,6 +176,11 @@ bool MainWindow::isFine()
     return true;
 }
 
+/**
+ * @brief MainWindow::on_InitTable_cellChanged - slot that monitors the change in a intial guess table
+ * @param row - row where the change happened
+ * @param column - column
+ */
 void MainWindow::on_InitTable_cellChanged(int row, int column)
 {
     ui->SolvePushButton->setEnabled(false);
@@ -180,9 +205,13 @@ void MainWindow::on_InitTable_cellChanged(int row, int column)
          ui->statusBar->showMessage("Intial guess for x" + QString::number(row+1) + ": " + "Only a number can be entered");
     }
 }
-size_t number_of_iterations = 0;
-Maths::T_matrix iterations;
 
+size_t number_of_iterations = 0; // total number of iterations the iterative process was happening
+Maths::T_matrix iterations; // all iterations that have happened
+
+/**
+ * @brief MainWindow::on_SolvePushButton_clicked -slot that monitors if the Sovle!!! button was clicked, if it has then solve the system
+ */
 void MainWindow::on_SolvePushButton_clicked()
 {
     std::vector<std::string> useful_funcs(functions.cbegin(),functions.cbegin()+ ui->spinBox->value());
@@ -212,7 +241,7 @@ void MainWindow::on_SolvePushButton_clicked()
     try
     {
         auto begun_time = std::chrono::high_resolution_clock::now();
-        auto result = ui->SIMButton->isChecked()? Iterative::getResult(useful_funcs, useful_guess): GaussZeidel::getResult(useful_funcs, useful_guess);
+		auto result = ui->SIMButton->isChecked()? Iterative::getResult(useful_funcs, useful_guess): GaussSeidel::getResult(useful_funcs, useful_guess);
         for(int i = 0; i < result.size();++i)
         {
             ui->ResultsTable->item(i,0)->setText(QString::number(result[i],'f', 5));
@@ -240,6 +269,10 @@ void MainWindow::on_SolvePushButton_clicked()
     }
 }
 
+/**
+ * @brief MainWindow::writeToFile - Function that writes the iterative process to file
+ * @param _time - time takken
+ */
 void MainWindow::writeToFile(double _time)
 {
     std::ofstream file("stats.txt", std::ios::app);
