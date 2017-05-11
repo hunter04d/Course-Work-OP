@@ -17,7 +17,7 @@ S_Result Iterative::getResult(const std::vector<std::string>& _funcs, const std:
 	std::vector<double> delta_iteration(_init_guess.size(),0);
 	double prev_delta, curr_delta;
 	auto begun_time = std::chrono::high_resolution_clock::now();
-	auto W = Maths::Linear::reverseMatrix(Maths::Calculus::jacobian(_funcs, _init_guess));
+	auto W = Maths::Linear::reverseMatrixGauss(Maths::Calculus::jacobian(_funcs, _init_guess));
 	do 
 	{
 		delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector));
@@ -60,7 +60,7 @@ S_Result GaussSeidel::getResult(const std::vector<std::string> &_funcs, const st
 	std::vector<double> delta_iteration(_init_guess.size(),0);
 	double prev_delta, curr_delta;
 	auto begun_time = std::chrono::high_resolution_clock::now();
-	auto W = Maths::Linear::reverseMatrix(Maths::Calculus::jacobian(_funcs, _init_guess));
+	auto W = Maths::Linear::reverseMatrixGauss(Maths::Calculus::jacobian(_funcs, _init_guess));
 	do
 	{
 		for (size_t i = 0 ; i < result.x_vector.size(); ++i)

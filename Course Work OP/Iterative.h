@@ -9,10 +9,10 @@ double static const pressision = 0.0001; // pressision to which to calculate
  */
 struct S_Result
 {
-	std::vector<double> x_vector;
-	Maths::T_matrix iterations;
-	size_t number_of_iterations;
-	double time;
+	std::vector<double> x_vector; // the actual result
+	Maths::T_matrix iterations; // all the iterations
+	size_t number_of_iterations; // number of iterations
+	double time; // time takken
 };
 
 // Iterative method

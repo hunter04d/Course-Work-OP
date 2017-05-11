@@ -243,8 +243,7 @@ void MainWindow::on_SolvePushButton_clicked()
         {
 			ui->ResultsTable->item(i,0)->setText(QString::number(result.x_vector[i],'f', 5));
         }
-		ui->TimeLabel->setText("Time taken: <b>" + QString::number(result.time)+"ms</b>");
-		ui->IterationLabel->setText("Number of iterations: <b>" + QString::number(result.number_of_iterations) + "</b>");
+		ui->TimeLabel->setText("Time taken: <b>" + QString::number(result.time) + "ms</b>&nbsp;&nbsp;&nbsp;&nbsp;Number of iterations:<b>" + QString::number(result.number_of_iterations) + "</b>");
         ui->StatisticsBox->show();
         if(ui->WriteToFilecheckBox->isChecked())
         {

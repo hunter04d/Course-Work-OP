@@ -91,10 +91,10 @@
    <widget class="QGroupBox" name="StatisticsBox">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>10</x>
       <y>400</y>
-      <width>271</width>
-      <height>41</height>
+      <width>511</width>
+      <height>46</height>
      </rect>
     </property>
     <property name="title">
@@ -103,31 +103,30 @@
     <property name="flat">
      <bool>false</bool>
     </property>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QLabel" name="TimeLabel">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>10</y>
-       <width>241</width>
-       <height>31</height>
+       <x>10</x>
+       <y>23</y>
+       <width>491</width>
+       <height>16</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_5">
-      <item>
-       <widget class="QLabel" name="TimeLabel">
-        <property name="text">
-         <string>Time taken:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="IterationLabel">
-        <property name="text">
-         <string>Number of iterations:</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Statistics go here</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+     </property>
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_2">

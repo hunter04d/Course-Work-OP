@@ -70,57 +70,75 @@ T_matrix Maths::Calculus::jacobian(const std::vector<std::string> _funcs, std::v
 	return out;
 }
 
-double Maths::Linear::determinant(const T_matrix& _matrix)
+T_matrix Maths::Linear::reverseMatrixGauss(const T_matrix& _matrix)
 {
-	if (_matrix.size() == 1)
+	int size = _matrix.size();
+	auto exetended_matrix = _matrix;
+	for (int i = 0; i < size; ++i)
 	{
-		return _matrix.at(0).at(0);
-	}
-	if (_matrix.size() == 2)
-	{
-		return _matrix[0][0] * _matrix[1][1] - _matrix[0][1] * _matrix[1][0];
-	}
-	double sum = 0;
-	auto sub_matrix = _matrix;
-	sub_matrix.erase(sub_matrix.cbegin());
-
-	for (size_t i = 0 ; i < _matrix.size();++i)
-	{
-		auto sub_matrix_copy = sub_matrix;
-		for(auto& vector : sub_matrix_copy)
+		for (int j = 0; j < size; ++j)
 		{
-			vector.erase(vector.cbegin() + i);
+			if (j == i)
+			{
+				exetended_matrix[i].push_back(1);
+			}
+			else { exetended_matrix[i].push_back(0); }
 		}
-		sum += _matrix[0][i] * Maths::powNegative1(2 + i) * determinant(sub_matrix_copy);
 	}
-	return sum;
-}
-
-double Maths::Linear::algebraicExtention(const T_matrix& _matrix, size_t _row, size_t _col)
-{
-	auto sub_matrix = _matrix;
-	sub_matrix.erase(sub_matrix.cbegin() + _row);
-	for (auto& row: sub_matrix)
+	// forward iterations
+	for (int i = 0; i < size; ++i)
 	{
-		row.erase(row.cbegin() + _col);
-	}
-	return powNegative1(2 + _row + _col)* determinant(sub_matrix);
-}
-
-T_matrix Maths::Linear::reverseMatrix(const T_matrix& _matrix)
-{
-	double det = determinant(_matrix);
-	if (det == 0)
-	{
-        throw std::exception("Bad Initial Guess. Please Change it");
-	}
-	T_matrix out(_matrix.size(), std::vector<double>(_matrix.size()));
-	for (size_t i = 0; i < _matrix.size(); ++i)
-	{
-		for(size_t j = 0 ; j < _matrix.size();++j)
+		// search max abs(element) in a row number ind
+		double max_element = 0;
+		int index_of_max = -1;
+		for (int j = i; j < size; ++j)
 		{
-			out[j][i] = (1/det)*algebraicExtention(_matrix, i, j);
+			if (max_element < abs(exetended_matrix[j][i]))
+			{
+				max_element = abs(exetended_matrix[j][i]);
+				index_of_max = j;
+			}
 		}
+		if (max_element == 0)
+		{
+			throw (std::exception("Bad intial guess. Please change it"));
+		}
+		// pivot to the largest element to avoid division by zero
+		std::swap(exetended_matrix[i], exetended_matrix[index_of_max]);
+		for (int j = i + 1; j < size; ++j)
+		{
+			double coef = exetended_matrix[j][i] / exetended_matrix[i][i];
+			for (int k = 0; k < size * 2; ++k)
+			{
+				exetended_matrix[j][k] -= exetended_matrix[i][k] * coef;
+			}
+		}
+	}
+	// reverse iterations
+	for (int i = size - 1; i > 0; --i)
+	{
+		for (int j = i - 1; j >= 0; --j)
+		{
+			double coef = exetended_matrix[j][i] / exetended_matrix[i][i];
+			for (int k = 0; k < size * 2; ++k)
+			{
+				exetended_matrix[j][k] -= exetended_matrix[i][k] * coef;
+			}
+		}
+	}
+	// identity transformation
+	for (int i = 0; i < size; ++i)
+	{
+		double diag_elem = exetended_matrix[i][i];
+		for (int j = 0; j < size * 2; ++j)
+		{
+			exetended_matrix[i][j] /= diag_elem;
+		}
+	}
+	T_matrix out;
+	for (auto vector : exetended_matrix)
+	{
+		out.emplace_back(vector.cbegin() + size, vector.cend());
 	}
 	return out;
 }
