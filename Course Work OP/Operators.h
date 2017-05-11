@@ -30,8 +30,8 @@ const std::vector<T_Operator> operators //adding new operators can be done here 
     { '^', 3, T_Operator::E_right,[](auto operant1, auto operant2) {return pow(operant1 , operant2); } }
 };
 
-bool isOperator(char _in);
-const T_Operator& getOperator(char _in);
+bool isOperator(char _in);// prototype of a function to check is the _in char is a defined operator
+const T_Operator& getOperator(char _in);// prototype of a function to get the operator struct based on the input char
 
 struct T_UnaryFunction // function structure
 {
@@ -53,5 +53,5 @@ const std::vector<T_UnaryFunction> functions //define new functions here
 
 };
 
-bool isFunction(const std::string& _in);
-const T_UnaryFunction& getFunction(const std::string& _in);
+bool isFunction(const std::string& _in);// prototype of a function to check is the _in string is a defined function token
+const T_UnaryFunction& getFunction(const std::string& _in);// prototype of a function to get the function struct based on the input string

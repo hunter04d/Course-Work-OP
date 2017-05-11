@@ -34,7 +34,13 @@ bool Maths::allVariablesArePresent(std::vector<std::string> _funcs)
     }
     return true;
 }
-
+/**
+ * @brief Maths::Calculus::derivative - function to get the derivative of the function at point _arg_vals by variable _by_arg+1
+ * @param _func - function in postfix notation
+ * @param _arg_vals - point where to calculate the derivative
+ * @param _by_arg - agrument by which to get the derivative
+ * @return value of the derivative
+ */
 double Maths::Calculus::derivative(const std::string&_func, std::vector<double> _arg_vals, size_t _by_arg)
 {
 	auto variable = _arg_vals[_by_arg];

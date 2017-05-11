@@ -76,6 +76,12 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
         auto var_pair = getVariableToken(_in, pos, _function_number);
         if (var_pair != -1)
         {
+			if(state!= expect_operand)
+			{
+				std::string exception_happened("operator expected at position ");
+				exception_happened += std::to_string(pos+1) + ". Got a variable token";
+				throw(std::exception(exception_happened.c_str()));
+			}
 			out += _in.substr(pos, var_pair) + ' ';
 			// has_variable.at(std::stoi(_in.substr(pos+1,var_pair-1))-1) = true;
             pos += var_pair;
@@ -88,6 +94,12 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
         int num_len = getNumberToken(_in, pos);
         if (num_len != -1)
         {
+			if(state!= expect_operand)
+			{
+				std::string exception_happened("operator expected at position ");
+				exception_happened += std::to_string(pos+1) + ". Got a number";
+				throw(std::exception(exception_happened.c_str()));
+			}
             out += (_in.substr(pos, num_len) + ' ');
             pos += num_len;
             last_was_func = false;
@@ -110,8 +122,8 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
             }
 			if(state != expect_operator)
 			{
-				std::string exception_happened("After a closing right brace at pos ");
-				exception_happened += std::to_string(pos+1) + " there has to be an operator";
+				std::string exception_happened("before a closing right brace at pos ");
+				exception_happened += std::to_string(pos+1) + " there can't be an operator";
 				throw(std::exception(exception_happened.c_str()));
 			}
             bool found_left_parenthesis = false;
@@ -130,6 +142,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
             }
             ++pos;
             last_was_func = false;
+			state = expect_operator;
             continue;
         }
         // Unary Minus
@@ -170,11 +183,16 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
         int func_len = getFuncToken(_in, pos);
         if (func_len != -1)
         {
+			if(state != expect_operand)
+			{
+				std::string exception_happened("operator expected at position ");
+				exception_happened += std::to_string(pos+1) + ". Got a function";
+				throw(std::exception(exception_happened.c_str()));
+			}
             stack.push(_in.substr(pos, func_len));
             stack.push("(");
             pos += func_len + 1;
 			last_was_func = true;
-			state = expect_operand;
             continue;
         }
         std::string exception_happened = "Unknown token at position " + std::to_string(pos + 1);
@@ -256,7 +274,7 @@ double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_va
 }
 
 /**
- * @brief getVariableToken - check is there is a spaning variable token at this position and if there is output it's length
+ * @brief getVariableToken - function that checks if there is a spaning variable token at this position and if there is output it's length
  * @param _in - input string
  * @param _pos - position to check from
  * @param _function_number - maximum numbered variable to expect
@@ -326,7 +344,7 @@ int getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
     return -1;
 }
 /**
- * @brief getFuncToken -function that checks if there is a spaning function token at this position and if there is output it's length
+ * @brief getFuncToken - function that checks if there is a spaning function token at this position and if there is output it's length
  * @param _in - input string
  * @param _pos - positon to check at
  * @return -1 if it is a function token, else the length of a token

@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ShuntingYard.h"
-#include "Methods.h"
+#include "Iterative.h"
 #include "Maths.h"
 #include <fstream>
 #include <ctime>
@@ -157,7 +157,7 @@ void MainWindow::on_FunctionsTable_cellChanged(int row, int column)
 }
 
 /**
- * @brief MainWindow::isFine - function that checks if all the values in table are ok
+ * @brief MainWindow::isFine - function that checks if all the values in tables are ok
  * @return true is they are, else false
  */
 bool MainWindow::isFine()
@@ -206,11 +206,9 @@ void MainWindow::on_InitTable_cellChanged(int row, int column)
     }
 }
 
-size_t number_of_iterations = 0; // total number of iterations the iterative process was happening
-Maths::T_matrix iterations; // all iterations that have happened
 
 /**
- * @brief MainWindow::on_SolvePushButton_clicked -slot that monitors if the Sovle!!! button was clicked, if it has then solve the system
+ * @brief MainWindow::on_SolvePushButton_clicked - slot that monitors if the Sovle!!! button was clicked, if it has then solve the system
  */
 void MainWindow::on_SolvePushButton_clicked()
 {
@@ -240,22 +238,18 @@ void MainWindow::on_SolvePushButton_clicked()
     std::vector<double> useful_guess(initial_guess.cbegin(),initial_guess.cbegin()+ ui->spinBox->value());
     try
     {
-        auto begun_time = std::chrono::high_resolution_clock::now();
 		auto result = ui->SIMButton->isChecked()? Iterative::getResult(useful_funcs, useful_guess): GaussSeidel::getResult(useful_funcs, useful_guess);
-        for(int i = 0; i < result.size();++i)
+		for(int i = 0; i < result.x_vector.size();++i)
         {
-            ui->ResultsTable->item(i,0)->setText(QString::number(result[i],'f', 5));
+			ui->ResultsTable->item(i,0)->setText(QString::number(result.x_vector[i],'f', 5));
         }
-        auto ended_time = std::chrono::high_resolution_clock::now();
-        auto taken_time = round(std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(ended_time - begun_time).count()*1000.0)/1000.0;
-        ui->TimeLabel->setText("Time taken: <b>" + QString::number(taken_time)+"ms</b>");
-        ui->IterationLabel->setText("Number of iterations: <b>" + QString::number(number_of_iterations) + "</b>");
+		ui->TimeLabel->setText("Time taken: <b>" + QString::number(result.time)+"ms</b>");
+		ui->IterationLabel->setText("Number of iterations: <b>" + QString::number(result.number_of_iterations) + "</b>");
         ui->StatisticsBox->show();
         if(ui->WriteToFilecheckBox->isChecked())
         {
-            writeToFile(taken_time);
+		   // writeToFile(taken_time);
         }
-        iterations.clear();
         ui->statusBar->showMessage("Solved!!! See statistics above");
     }
     catch(std::exception _exception)
@@ -270,10 +264,10 @@ void MainWindow::on_SolvePushButton_clicked()
 }
 
 /**
- * @brief MainWindow::writeToFile - Function that writes the iterative process to file
+ * @brief MainWindow::writeToFile - function that writes the iterative process to file
  * @param _time - time takken
  */
-void MainWindow::writeToFile(double _time)
+void MainWindow::writeToFile(S_Result _result)
 {
     std::ofstream file("stats.txt", std::ios::app);
     auto curr_time = std::time(nullptr);
@@ -299,16 +293,16 @@ void MainWindow::writeToFile(double _time)
     {
         file << initial_guess[i];
     }
-    for(size_t i = 0; i < iterations.size();++i)
+   for(size_t i = 0; i < _result.iterations.size();++i)
     {
-         std::string out = "iteration " + std::to_string(i+1) + ": ";
-         file << std::endl <<std::setw(15) << out <<std::setw(12) ;
-         for(int j = 0 ; j < ui->spinBox->value();++j)
+		 std::string out = "iteration " + std::to_string(i+1) + ": ";
+		 file << std::endl <<std::setw(15) << out <<std::setw(12) ;
+		 for(int j = 0 ; j < ui->spinBox->value();++j)
          {
-            (file << iterations[i][j]);
+			(file << _result.iterations[i][j]);
          }
     }
     (file.put('\n')) << std::setw(1);
-    file << "Number of iterations:" << number_of_iterations << '\n';
-    file << "Time:" << _time << "ms\n\n";
+	file << "Number of iterations:" << _result.number_of_iterations << '\n';
+	file << "Time:" << _result.time << "ms\n\n";
 }

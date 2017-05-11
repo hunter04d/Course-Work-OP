@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTableWidgetItem>
+#include <Iterative.h>
 
 namespace Ui {
 class MainWindow;
@@ -29,15 +30,15 @@ private slots:
 
 private:
 	Ui::MainWindow *ui; // ui implementation
-	std::vector<std::string> functions; // function is postfix notation
-	std::vector<bool> function_is_fine; //flags to check the states of the functions
-	std::vector<double> initial_guess; // intial guess
-	std::vector<bool> initial_guess_is_fine; // flags to check the states of the intial guess
-	std::vector<double> result; //results
+	std::vector<std::string> functions;// function is postfix notation
+	std::vector<bool> function_is_fine;// flags to check the states of the functions
+	std::vector<double> initial_guess;// intial guess
+	std::vector<bool> initial_guess_is_fine;// flags to check the states of the intial guess
+	std::vector<double> result;// results
 
-    bool isFine();
+	bool isFine();// declaration of a function that checks if all the values in tables are ok
 
-    void writeToFile(double _time);
+	void writeToFile(S_Result _result);// declaration of a function that writes the iterative process to file
 };
 
 #endif // MAINWINDOW_H

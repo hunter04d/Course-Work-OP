@@ -3,75 +3,90 @@
 #include <QDebug>
 #include <math.h>
 #include <algorithm>
+#include <chrono>
 
-extern size_t number_of_iterations;
-extern Maths::T_matrix iterations;
-std::vector<double> Iterative::getResult(const std::vector<std::string>& _funcs, const std::vector<double>& _init_guess)
+/**
+ * @brief Iterative::getResult - function to solve the system using the Iterative method
+ * @param _funcs - system of functions, each function comes in postfix notation
+ * @param _init_guess - point, intial guess for the system
+ * @return S_Result struct, containing the result, each iteration, number of iterations, time
+ */
+S_Result Iterative::getResult(const std::vector<std::string>& _funcs, const std::vector<double>& _init_guess)
 {
+	S_Result result {_init_guess,Maths::T_matrix(),0,0};
+	std::vector<double> delta_iteration(_init_guess.size(),0);
+	double prev_delta, curr_delta;
+	auto begun_time = std::chrono::high_resolution_clock::now();
 	auto W = Maths::Linear::reverseMatrix(Maths::Calculus::jacobian(_funcs, _init_guess));
-    std::vector<double> delta_iteration(_init_guess.size(),0);
-    std::vector<double> x_vector(_init_guess);
-    number_of_iterations = 0;
-    double prev_delta, curr_delta;
 	do 
 	{
-        delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, x_vector));
-		for (size_t i = 0 ; i < x_vector.size(); ++i)
+		delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector));
+		for (size_t i = 0 ; i < result.x_vector.size(); ++i)
 		{
-            x_vector[i] -= delta_iteration[i];
-            if(isinf(x_vector[i])|| isnan(x_vector[i]))
+			result.x_vector[i] -= delta_iteration[i];
+			if(isinf(result.x_vector[i])|| isnan(result.x_vector[i]))
                { throw (std::exception("System is not solvable with this initial guess")); }
 		}
-        ++number_of_iterations;
+		++result.number_of_iterations;
         curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
-        if(number_of_iterations>10)
+		if(result.number_of_iterations>10)
         {
             if(curr_delta >= prev_delta)
                 throw (std::exception("System is not solvable with this initial guess"));
         }
         prev_delta = curr_delta;
-        iterations.push_back(x_vector);
+		result.iterations.push_back(result.x_vector);
     } while (curr_delta >= pressision);
-    delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, x_vector));
+	delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector));
     curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
     if(curr_delta <= pressision)
     {
-         return x_vector;
+		 auto ended_time = std::chrono::high_resolution_clock::now();
+		 result.time = round(std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(ended_time - begun_time).count()*1000.0)/1000.0;
+		 return result;
     }
     throw (std::exception("System is not solvable with this initial guess"));
 }
 
-std::vector<double> GaussZeidel::getResult(const std::vector<std::string> &_funcs, const std::vector<double> &_init_guess)
+/**
+ * @brief GaussSeidel::getResult - function to solve the system using the Iterative method
+ * @param _funcs - system of functions, each function comes in postfix notation
+ * @param _init_guess - point, intial guess for the system
+ * @return S_Result struct, containing the result, each iteration, number of iterations, time
+ */
+S_Result GaussSeidel::getResult(const std::vector<std::string> &_funcs, const std::vector<double> &_init_guess)
 {
-    auto W = Maths::Linear::reverseMatrix(Maths::Calculus::jacobian(_funcs, _init_guess));
-    std::vector<double> delta_iteration(_init_guess.size(),0.0);
-    std::vector<double> x_vector(_init_guess);
-    number_of_iterations = 0;
-    double prev_delta, curr_delta;
-    do
-    {
-         for (size_t i = 0 ; i < x_vector.size(); ++i)
-         {
-            delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, x_vector));
-            x_vector[i] -= delta_iteration[i]; 
-            if(isinf(x_vector[i])|| isnan(x_vector[i]))
-                { throw (std::exception("System is not solvable with this initial guess")); }
-         }
-        ++number_of_iterations;
-        curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
-        if(number_of_iterations>10)
-        {
-            if(curr_delta >= prev_delta)
-                throw (std::exception("System is not solvable with this initial guess"));
-        }
-        prev_delta = curr_delta;
-        iterations.push_back(x_vector);
-    } while(curr_delta >= pressision);
-     delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, x_vector));
-     curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
-     if(curr_delta <= pressision)
-     {
-          return x_vector;
-     }
-     throw (std::exception("System is not solvable with this initial guess"));
+	S_Result result {_init_guess,Maths::T_matrix(),0,0};
+	std::vector<double> delta_iteration(_init_guess.size(),0);
+	double prev_delta, curr_delta;
+	auto begun_time = std::chrono::high_resolution_clock::now();
+	auto W = Maths::Linear::reverseMatrix(Maths::Calculus::jacobian(_funcs, _init_guess));
+	do
+	{
+		for (size_t i = 0 ; i < result.x_vector.size(); ++i)
+		{
+			delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector));
+			result.x_vector[i] -= delta_iteration[i];
+			if(isinf(result.x_vector[i])|| isnan(result.x_vector[i]))
+			   { throw (std::exception("System is not solvable with this initial guess")); }
+		}
+		++result.number_of_iterations;
+		curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
+		if(result.number_of_iterations>10)
+		{
+			if(curr_delta >= prev_delta)
+				throw (std::exception("System is not solvable with this initial guess"));
+		}
+		prev_delta = curr_delta;
+		result.iterations.push_back(result.x_vector);
+	} while (curr_delta >= pressision);
+	delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector));
+	curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
+	if(curr_delta <= pressision)
+	{
+		 auto ended_time = std::chrono::high_resolution_clock::now();
+		 result.time = round(std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(ended_time - begun_time).count()*1000.0)/1000.0;
+		 return result;
+	}
+	throw (std::exception("System is not solvable with this initial guess"));
 }

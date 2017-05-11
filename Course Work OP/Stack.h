@@ -2,12 +2,15 @@
 
 /**
  *Stack realisation
- * T: values it the stack
+ * T - values in the stack
  */
 template <typename T>
 class Stack
 {
-	struct list // the underling linked list of the Stack
+	/**
+	 * @brief The list struct  is the underling linked list of the Stack
+	 */
+	struct list
 	{
 		T value;
 		list* next_ptr;
