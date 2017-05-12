@@ -238,7 +238,7 @@ void MainWindow::on_SolvePushButton_clicked()
     std::vector<double> useful_guess(initial_guess.cbegin(),initial_guess.cbegin()+ ui->spinBox->value());
     try
     {
-		auto result = ui->SIMButton->isChecked()? Iterative::getResult(useful_funcs, useful_guess): GaussSeidel::getResult(useful_funcs, useful_guess);
+		auto result = ui->SIMButton->isChecked()? FixedPointIteration::getResult(useful_funcs, useful_guess): GaussSeidel::getResult(useful_funcs, useful_guess);
 		for(int i = 0; i < result.x_vector.size();++i)
         {
 			ui->ResultsTable->item(i,0)->setText(QString::number(result.x_vector[i],'f', 5));

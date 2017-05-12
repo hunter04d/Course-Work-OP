@@ -15,13 +15,13 @@ struct T_Operator // Operator structure
 	};
 	char F_operator; // representing char
 	size_t presedence; // operator presedence compared to others
-	bool associativity = E_left;//left or right
+	bool associativity = E_left; // left or right
 	double(*function)(double, double); // a function that implements operator's behavior (pointer to it)
 
 };
 
 /*storage for defined operators*/
-const std::vector<T_Operator> operators //adding new operators can be done here and just here
+const std::vector<T_Operator> operators // adding new operators can be done here and just here
 {
     { '+', 1, T_Operator::E_left, [](auto operant1, auto operant2) {return operant1 + operant2; } },
     { '-', 1, T_Operator::E_left, [](auto operant1, auto operant2) {return operant1 - operant2; } },
@@ -30,8 +30,8 @@ const std::vector<T_Operator> operators //adding new operators can be done here 
     { '^', 3, T_Operator::E_right,[](auto operant1, auto operant2) {return pow(operant1 , operant2); } }
 };
 
-bool isOperator(char _in);// prototype of a function to check is the _in char is a defined operator
-const T_Operator& getOperator(char _in);// prototype of a function to get the operator struct based on the input char
+bool isOperator(char _in); // prototype of a function to check is the _in char is a defined operator
+const T_Operator& getOperator(char _in); // prototype of a function to get the operator struct based on the input char
 
 struct T_UnaryFunction // function structure
 {
@@ -40,7 +40,7 @@ struct T_UnaryFunction // function structure
 };
 
 /*storage for defined functions*/
-const std::vector<T_UnaryFunction> functions //define new functions here
+const std::vector<T_UnaryFunction> functions // define new functions here
 {
 	{"unary_minus",[](auto argument) { return -argument; }},
 	{"sqrt", [](auto argument) { return sqrt(argument); }},
@@ -53,5 +53,5 @@ const std::vector<T_UnaryFunction> functions //define new functions here
 
 };
 
-bool isFunction(const std::string& _in);// prototype of a function to check is the _in string is a defined function token
-const T_UnaryFunction& getFunction(const std::string& _in);// prototype of a function to get the function struct based on the input string
+bool isFunction(const std::string& _in); // prototype of a function to check is the _in string is a defined function token
+const T_UnaryFunction& getFunction(const std::string& _in); // prototype of a function to get the function struct based on the input string

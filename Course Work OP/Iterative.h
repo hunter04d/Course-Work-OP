@@ -15,8 +15,8 @@ struct S_Result
 	double time; // time takken
 };
 
-// Iterative method
-namespace Iterative
+// Fixed point iteration method
+namespace FixedPointIteration
 {
 	S_Result getResult(const std::vector<std::string>& _funcs, const std::vector<double>& _init_guess);// prototype of a function to get the result using Iterative method
 }

@@ -18,15 +18,15 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_spinBox_valueChanged(int arg1);
+	void on_spinBox_valueChanged(int arg1); // spinbox slot
 
-    void on_horizontalSlider_valueChanged(int value);
+	void on_horizontalSlider_valueChanged(int value); // slider slot, triggers when the a
 
-    void on_FunctionsTable_cellChanged(int row, int column);
+	void on_FunctionsTable_cellChanged(int row, int column); // FunctionsTable slot, triggers when a function was entered
 
-    void on_InitTable_cellChanged(int row, int column);
+	void on_InitTable_cellChanged(int row, int column); // InitTable slot, triggers when an initial guess was entered
 
-    void on_SolvePushButton_clicked();
+	void on_SolvePushButton_clicked(); // SolveButton slot, triggers when a button was pressed
 
 private:
 	Ui::MainWindow *ui; // ui implementation

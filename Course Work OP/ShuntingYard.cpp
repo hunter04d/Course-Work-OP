@@ -305,6 +305,7 @@ int getVariableToken(const std::string& _in, size_t _pos,size_t _function_number
     }
     return -1;
 }
+
 /**
  * @brief getNumberToken - function that checks if there is a spaning number token at this position and if there is output it's length
  * @param _in - input string
@@ -343,6 +344,7 @@ int getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
     }
     return -1;
 }
+
 /**
  * @brief getFuncToken - function that checks if there is a spaning function token at this position and if there is output it's length
  * @param _in - input string

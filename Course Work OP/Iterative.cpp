@@ -6,12 +6,12 @@
 #include <chrono>
 
 /**
- * @brief Iterative::getResult - function to solve the system using the Iterative method
+ * @brief Iterative::getResult - function to solve the system using the fixed point iteration method
  * @param _funcs - system of functions, each function comes in postfix notation
  * @param _init_guess - point, intial guess for the system
  * @return S_Result struct, containing the result, each iteration, number of iterations, time
  */
-S_Result Iterative::getResult(const std::vector<std::string>& _funcs, const std::vector<double>& _init_guess)
+S_Result FixedPointIteration::getResult(const std::vector<std::string>& _funcs, const std::vector<double>& _init_guess)
 {
 	S_Result result {_init_guess,Maths::T_matrix(),0,0};
 	std::vector<double> delta_iteration(_init_guess.size(),0);
@@ -20,7 +20,7 @@ S_Result Iterative::getResult(const std::vector<std::string>& _funcs, const std:
 	auto W = Maths::Linear::reverseMatrixGauss(Maths::Calculus::jacobian(_funcs, _init_guess));
 	do 
 	{
-		delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector));
+		delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector)); // change of variables on each iterations
 		for (size_t i = 0 ; i < result.x_vector.size(); ++i)
 		{
 			result.x_vector[i] -= delta_iteration[i];
@@ -65,7 +65,7 @@ S_Result GaussSeidel::getResult(const std::vector<std::string> &_funcs, const st
 	{
 		for (size_t i = 0 ; i < result.x_vector.size(); ++i)
 		{
-			delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector));
+			delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector)); //change
 			result.x_vector[i] -= delta_iteration[i];
 			if(isinf(result.x_vector[i])|| isnan(result.x_vector[i]))
 			   { throw (std::exception("System is not solvable with this initial guess")); }

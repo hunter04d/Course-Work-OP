@@ -34,6 +34,7 @@ bool Maths::allVariablesArePresent(std::vector<std::string> _funcs)
     }
     return true;
 }
+
 /**
  * @brief Maths::Calculus::derivative - function to get the derivative of the function at point _arg_vals by variable _by_arg+1
  * @param _func - function in postfix notation
@@ -52,7 +53,7 @@ double Maths::Calculus::derivative(const std::string&_func, std::vector<double> 
 }
 
 /**
- * @brief Maths::Calculus::jacobian - get Jacobi matrix of functions _funcs at point _point
+ * @brief Maths::Calculus::jacobian - function to get the Jacobi matrix of functions _funcs at point _point
  * @param _funcs - functions
  * @param _point - point in which jacobian is calculated
  * @return Jacobi matrix
@@ -70,6 +71,11 @@ T_matrix Maths::Calculus::jacobian(const std::vector<std::string> _funcs, std::v
 	return out;
 }
 
+/**
+ * @brief Maths::Linear::reverseMatrixGauss - function to invert the input Matrix using Gauss method
+ * @param _matrix - input matrix
+ * @return matrix inverse to the input
+ */
 T_matrix Maths::Linear::reverseMatrixGauss(const T_matrix& _matrix)
 {
 	int size = _matrix.size();
@@ -142,8 +148,9 @@ T_matrix Maths::Linear::reverseMatrixGauss(const T_matrix& _matrix)
 	}
 	return out;
 }
+
 /**
- * @brief Maths::Linear::multiplyMatrixByVector - function multiply a matrix by a vector
+ * @brief Maths::Linear::multiplyMatrixByVector - function to multiply a matrix by a vector
  * @param _matrix - matrix
  * @param _vector - vector which is matrix is multiplied by
  * @return vector, product of _matrix and _vector
@@ -163,6 +170,7 @@ std::vector<double> Maths::Linear::multiplyMatrixByVector(const T_matrix& _matri
 	}
 	return out;
 }
+
 /**
  * @brief Maths::calcFuncVector - function that calculates value of functions _func at point arg_vals
  * @param _func - functions in postfix notation
