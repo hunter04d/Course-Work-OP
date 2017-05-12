@@ -247,7 +247,7 @@ void MainWindow::on_SolvePushButton_clicked()
         ui->StatisticsBox->show();
         if(ui->WriteToFilecheckBox->isChecked())
         {
-		   // writeToFile(taken_time);
+		   writeToFile(result);
         }
         ui->statusBar->showMessage("Solved!!! See statistics above");
     }

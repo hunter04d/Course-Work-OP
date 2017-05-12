@@ -15,9 +15,9 @@ namespace Maths
 		return _pow % 2 ? -1 : 1;
 	}
 
-	bool allVariablesArePresent(std::vector<std::string> _funcs); // prototype of a function to check if all variable tokens are present in _funcs
+	bool allVariablesArePresent(const std::vector<std::string>& _funcs); // prototype of a function to check if all variable tokens are present in _funcs
 
-	std::vector<double> calcFuncVector(const std::vector<std::string>&_func, std::vector<double> arg_vals); // prototype of a function that calculates value of functions _func at point arg_vals
+	std::vector<double> calcFuncVector(const std::vector<std::string>&_func,const std::vector<double>& arg_vals); // prototype of a function that calculates value of functions _func at point arg_vals
 	// Calculus problems
 	namespace Calculus 
 	{
@@ -25,13 +25,15 @@ namespace Maths
 
 		double derivative(const std::string&_func, std::vector<double> arg_vals, size_t _by_arg); // prototype of a function to get the derivative of the function at point _arg_vals by variable _by_arg+1
 
-		T_matrix jacobian(const std::vector<std::string> _funcs, std::vector<double> _point); // prototype of a function to get the Jacobi matrix of functions _funcs at point _point
+		T_matrix jacobian(const std::vector<std::string>& _funcs, const std::vector<double>& _point); // prototype of a function to get the Jacobi matrix of functions _funcs at point _point
 	}
 	// linear algebra problems
 	namespace Linear
 	{
 		T_matrix reverseMatrixGauss(const T_matrix& _matrix); // prototype of a function that inverts the input matrix using Gauss method
 
-		std::vector<double> multiplyMatrixByVector(const T_matrix& _matrix, const std::vector<double> _vector); // prototype of a function to multiply a matrix by a vector
+		double multiplyVectorsScalar(const std::vector<double>& _vector1, const std::vector<double>& _vector2); // prototype of a function that multiplies two vectors scalarlly
+
+		std::vector<double> multiplyMatrixByVector(const T_matrix& _matrix, const std::vector<double>& _vector); // prototype of a function to multiply a matrix by a vector
 	}
 }

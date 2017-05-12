@@ -8,7 +8,7 @@ using Maths::T_matrix;
  * @param _funcs - functions to check in postfix notation
  * @return true if all variables are present (the same number as the numbe of functions), else false
  */
-bool Maths::allVariablesArePresent(std::vector<std::string> _funcs)
+bool Maths::allVariablesArePresent(const std::vector<std::string>& _funcs)
 {
     std::string token;
     std::istringstream stream;
@@ -58,7 +58,7 @@ double Maths::Calculus::derivative(const std::string&_func, std::vector<double> 
  * @param _point - point in which jacobian is calculated
  * @return Jacobi matrix
  */
-T_matrix Maths::Calculus::jacobian(const std::vector<std::string> _funcs, std::vector<double> _point)
+T_matrix Maths::Calculus::jacobian(const std::vector<std::string>& _funcs, const std::vector<double>& _point)
 {
 	T_matrix out(_funcs.size(), std::vector<double>(_funcs.size()));
 	for(size_t i = 0 ; i < out.size(); ++i)
@@ -155,7 +155,7 @@ T_matrix Maths::Linear::reverseMatrixGauss(const T_matrix& _matrix)
  * @param _vector - vector which is matrix is multiplied by
  * @return vector, product of _matrix and _vector
  */
-std::vector<double> Maths::Linear::multiplyMatrixByVector(const T_matrix& _matrix, const std::vector<double> _vector)
+std::vector<double> Maths::Linear::multiplyMatrixByVector(const T_matrix& _matrix, const std::vector<double>& _vector)
 {
 	size_t r = _vector.size();
 	std::vector<double> out(r);
@@ -172,12 +172,28 @@ std::vector<double> Maths::Linear::multiplyMatrixByVector(const T_matrix& _matri
 }
 
 /**
+ * @brief Maths::Linear::multiplyVectorsScalar - function to scalarly multiply two vectors
+ * @param _vector1 - first vector
+ * @param _vector2 - second vector
+ * @return scalar product of input vectors
+ */
+double Maths::Linear::multiplyVectorsScalar(const std::vector<double>& _vector1, const std::vector<double>& _vector2)
+{
+	double out = 0;
+	for(size_t i = 0; i < _vector2.size(); ++i)
+	{
+		out += _vector1[i]*_vector2[i];
+	}
+	return out;
+}
+
+/**
  * @brief Maths::calcFuncVector - function that calculates value of functions _func at point arg_vals
  * @param _func - functions in postfix notation
  * @param arg_vals - Point to calculate in
  * @return values of functions at point arg_vals
  */
-std::vector<double> Maths::calcFuncVector(const std::vector<std::string>& _func, std::vector<double> arg_vals)
+std::vector<double> Maths::calcFuncVector(const std::vector<std::string>& _func, const std::vector<double>& arg_vals)
 {
 	std::vector<double> out;
 	for(const auto& func:_func)
@@ -186,3 +202,4 @@ std::vector<double> Maths::calcFuncVector(const std::vector<std::string>& _func,
 	}
 	return out;
 }
+

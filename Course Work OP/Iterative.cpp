@@ -65,10 +65,11 @@ S_Result GaussSeidel::getResult(const std::vector<std::string> &_funcs, const st
 	{
 		for (size_t i = 0 ; i < result.x_vector.size(); ++i)
 		{
-			delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector)); //change
-			result.x_vector[i] -= delta_iteration[i];
+			double curr_variable_delta = Maths::Linear::multiplyVectorsScalar(W[i], Maths::calcFuncVector(_funcs, result.x_vector)); //change of the current variable
+			result.x_vector[i] -= curr_variable_delta;
 			if(isinf(result.x_vector[i])|| isnan(result.x_vector[i]))
 			   { throw (std::exception("System is not solvable with this initial guess")); }
+			delta_iteration[i] = curr_variable_delta;
 		}
 		++result.number_of_iterations;
 		curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
