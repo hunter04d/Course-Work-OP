@@ -21,7 +21,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow), functions(MAX_FUNC_NUMBER), function_is_fine(MAX_FUNC_NUMBER, false),  initial_guess(MAX_FUNC_NUMBER), initial_guess_is_fine(MAX_FUNC_NUMBER,false), result(MAX_FUNC_NUMBER)
 {
     ui->setupUi(this);
-    ui->FunctionsTable->setColumnWidth(0,256);
     QStringList name_initer;
     for(int i = 1; i <= MAX_FUNC_NUMBER; ++i )
         name_initer << "x" + QString::number(i);
@@ -33,13 +32,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->InitTable->verticalHeader()->setSectionResizeMode (QHeaderView::Fixed);
     ui->ResultsTable->horizontalHeader()->setSectionResizeMode (QHeaderView::Fixed);
     ui->ResultsTable->verticalHeader()->setSectionResizeMode (QHeaderView::Fixed);
-
     for(int i = 0; i<MAX_FUNC_NUMBER;++i)
     {
         QTableWidgetItem* init_tables[3];
         for(int j = 0; j< 3;++j)
         {
-            init_tables[j] = new QTableWidgetItem;
+			init_tables[j] = new QTableWidgetItem;
         }
         ui->FunctionsTable->setItem(i,0,init_tables[0]);
         ui->InitTable->setItem(i,0,init_tables[1]);
@@ -50,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->SIMButton->setChecked(true);
     ui->StatisticsBox->hide();
     ui->statusBar->clearMessage();
+	ui->spinBox->setValue(2);
 }
 
 MainWindow::~MainWindow()
@@ -58,7 +57,7 @@ MainWindow::~MainWindow()
 }
 
 /**
- * @brief MainWindow::on_spinBox_valueChanged - slot that checks when the spindox of the number of functions has changed
+ * @brief MainWindow::on_spinBox_valueChanged - slot that checks when the spinbox of the number of functions has changed and updates the tables correspondingly
  * @param new_val - new value
  */
 void MainWindow::on_spinBox_valueChanged(int new_val)
@@ -99,6 +98,12 @@ void MainWindow::on_spinBox_valueChanged(int new_val)
         ui->statusBar->showMessage("Ready to solve!!!");
         ui->SolvePushButton->setEnabled(true);
     }
+	ui->FunctionsTable->verticalHeader()->adjustSize();
+	ui->InitTable->verticalHeader()->adjustSize();
+	ui->ResultsTable->verticalHeader()->adjustSize();
+	ui->FunctionsTable->setColumnWidth(0, ui->FunctionsTable->width() - ui->FunctionsTable->verticalHeader()->width()-1);
+	ui->InitTable->setColumnWidth(0, ui->InitTable->width() - ui->InitTable->verticalHeader()->width()-1);
+	ui->ResultsTable->setColumnWidth(0, ui->ResultsTable->width() - ui->ResultsTable->verticalHeader()->width());
 }
 
 /**
@@ -146,12 +151,14 @@ void MainWindow::on_FunctionsTable_cellChanged(int row, int column)
        ui->statusBar->showMessage("Function " + QString::number(row+1) + ": " + _exception.what());
        function_is_fine.at(row) = false;
        ui->FunctionsTable->item(row,column)->setBackgroundColor({255,0,0});
+	   ui->FunctionsTable->item(row,column)->setSelected(false);
    }
    catch(...)
    {
        ui->statusBar->showMessage("Function " + QString::number(row+1) + ": " "something is horribly wrong");
        function_is_fine.at(row) = false;
        ui->FunctionsTable->item(row,column)->setBackgroundColor({255,0,0});
+	   ui->FunctionsTable->item(row,column)->setSelected(false);
    }
 
 }

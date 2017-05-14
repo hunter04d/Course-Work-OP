@@ -49,7 +49,8 @@ const std::vector<T_UnaryFunction> functions // define new functions here
 	{"sin", [](auto argument) { return sin(argument); }},
 	{"cos", [](auto argument) { return cos(argument); }},
     {"ln", [](auto argument) { return log(argument); }},
-	{"log10",[](auto argument) {return log10(argument); }}
+	{"log10",[](auto argument) {return log10(argument); }},
+	{"abs", [](auto argument) {return abs(argument); }}
 
 };
 
