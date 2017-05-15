@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "ui_mainwindow.h"
 #include "ShuntingYard.h"
 #include "Iterative.h"
@@ -271,7 +271,7 @@ void MainWindow::on_SolvePushButton_clicked()
 
 /**
  * @brief MainWindow::writeToFile - function that writes the iterative process to file
- * @param _time - time takken
+ * @param _result - systems solution and stats
  */
 void MainWindow::writeToFile(S_Result _result)
 {

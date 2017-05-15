@@ -24,17 +24,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
     Operators.cpp \
     ShuntingYard.cpp \
     Maths.cpp \
-    Iterative.cpp
+    Iterative.cpp \
+    MainWindow.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     Operators.h \
     ShuntingYard.h \
     Stack.h \
     Maths.h \
-    Iterative.h
+    Iterative.h \
+    MainWindow.h
 
 FORMS    += mainwindow.ui
