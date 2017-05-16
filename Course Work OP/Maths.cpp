@@ -46,9 +46,9 @@ double Maths::Calculus::derivative(const std::string&_func, std::vector<double> 
 {
 	auto variable = _arg_vals[_by_arg];
 	_arg_vals[_by_arg] = variable + delta_x;
-	double func_at_plus_dx = calculateFunc(_func, _arg_vals);
+	double func_at_plus_dx = ShuntingYard::calculateFunc(_func, _arg_vals);
 	_arg_vals[_by_arg] = variable - delta_x;
-	double func_at_minus_dx = calculateFunc(_func, _arg_vals);
+	double func_at_minus_dx = ShuntingYard::calculateFunc(_func, _arg_vals);
 	return (func_at_plus_dx - func_at_minus_dx) / (2 * delta_x);
 }
 
@@ -58,7 +58,7 @@ double Maths::Calculus::derivative(const std::string&_func, std::vector<double> 
  * @param _point - point in which jacobian is calculated
  * @return Jacobi matrix
  */
-T_matrix Maths::Calculus::jacobian(const std::vector<std::string>& _funcs, const std::vector<double>& _point)
+T_matrix Maths::Calculus::jacobiMatrix(const std::vector<std::string>& _funcs, const std::vector<double>& _point)
 {
 	T_matrix out(_funcs.size(), std::vector<double>(_funcs.size()));
 	for(size_t i = 0 ; i < out.size(); ++i)
@@ -198,7 +198,7 @@ std::vector<double> Maths::calcFuncVector(const std::vector<std::string>& _func,
 	std::vector<double> out;
 	for(const auto& func:_func)
 	{
-		out.push_back(calculateFunc(func, arg_vals));
+		out.push_back(ShuntingYard::calculateFunc(func, arg_vals));
 	}
 	return out;
 }

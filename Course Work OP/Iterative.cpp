@@ -11,13 +11,13 @@
  * @param _init_guess - point, intial guess for the system
  * @return S_Result struct, containing the result, each iteration, number of iterations, time
  */
-S_Result FixedPointIteration::getResult(const std::vector<std::string>& _funcs, const std::vector<double>& _init_guess)
+Iterative::S_Result Iterative::FixedPointIteration::getResult(const std::vector<std::string>& _funcs, const std::vector<double>& _init_guess)
 {
-	S_Result result {_init_guess,Maths::T_matrix(),0,0};
+	Iterative::S_Result result {_init_guess,Maths::T_matrix(),0,0};
 	std::vector<double> delta_iteration(_init_guess.size(),0);
 	double prev_delta, curr_delta;
 	auto begun_time = std::chrono::high_resolution_clock::now();
-	auto W = Maths::Linear::reverseMatrixGauss(Maths::Calculus::jacobian(_funcs, _init_guess));
+	auto W = Maths::Linear::reverseMatrixGauss(Maths::Calculus::jacobiMatrix(_funcs, _init_guess));
 	do 
 	{
 		delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector)); // change of variables on each iterations
@@ -36,10 +36,10 @@ S_Result FixedPointIteration::getResult(const std::vector<std::string>& _funcs, 
         }
         prev_delta = curr_delta;
 		result.iterations.push_back(result.x_vector);
-    } while (curr_delta >= pressision);
+	} while (curr_delta >= pressision);
 	delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector));
     curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
-    if(curr_delta <= pressision)
+	if(curr_delta <= pressision)
     {
 		 auto ended_time = std::chrono::high_resolution_clock::now();
 		 result.time = round(std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(ended_time - begun_time).count()*1000.0)/1000.0;
@@ -54,13 +54,13 @@ S_Result FixedPointIteration::getResult(const std::vector<std::string>& _funcs, 
  * @param _init_guess - point, intial guess for the system
  * @return S_Result struct, containing the result, each iteration, number of iterations, time
  */
-S_Result GaussSeidel::getResult(const std::vector<std::string> &_funcs, const std::vector<double> &_init_guess)
+Iterative::S_Result Iterative::GaussSeidel::getResult(const std::vector<std::string> &_funcs, const std::vector<double> &_init_guess)
 {
-	S_Result result {_init_guess,Maths::T_matrix(),0,0};
+	Iterative::S_Result result {_init_guess,Maths::T_matrix(),0,0};
 	std::vector<double> delta_iteration(_init_guess.size(),0);
 	double prev_delta, curr_delta;
 	auto begun_time = std::chrono::high_resolution_clock::now();
-	auto W = Maths::Linear::reverseMatrixGauss(Maths::Calculus::jacobian(_funcs, _init_guess));
+	auto W = Maths::Linear::reverseMatrixGauss(Maths::Calculus::jacobiMatrix(_funcs, _init_guess));
 	do
 	{
 		for (size_t i = 0 ; i < result.x_vector.size(); ++i)
@@ -80,10 +80,10 @@ S_Result GaussSeidel::getResult(const std::vector<std::string> &_funcs, const st
 		}
 		prev_delta = curr_delta;
 		result.iterations.push_back(result.x_vector);
-	} while (curr_delta >= pressision);
+	} while (curr_delta >= Iterative::pressision);
 	delta_iteration = Maths::Linear::multiplyMatrixByVector(W, Maths::calcFuncVector(_funcs, result.x_vector));
 	curr_delta = abs(*std::max_element(delta_iteration.begin(), delta_iteration.end(), [](auto a, auto b) {return abs(a) < abs(b); }));
-	if(curr_delta <= pressision)
+	if(curr_delta <= Iterative::pressision)
 	{
 		 auto ended_time = std::chrono::high_resolution_clock::now();
 		 result.time = round(std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(ended_time - begun_time).count()*1000.0)/1000.0;

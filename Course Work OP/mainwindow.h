@@ -5,6 +5,7 @@
 #include <QTableWidgetItem>
 #include <Iterative.h>
 
+const int MAX_FUNC_NUMBER = 10; // max number of functios supported
 namespace Ui {
 class MainWindow;
 }
@@ -38,7 +39,7 @@ private:
 
 	bool isFine();// declaration of a function that checks if all the values in tables are ok
 
-	void writeToFile(S_Result _result);// declaration of a function that writes the iterative process to file
+	void writeToFile(Iterative::S_Result _result);// declaration of a function that writes the iterative process to file
 };
 
 #endif // MAINWINDOW_H

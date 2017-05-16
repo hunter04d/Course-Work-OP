@@ -1,5 +1,5 @@
 
-#include "Operators.h"
+#include "Tokens.h"
 
 
 /**
@@ -7,11 +7,11 @@
  * @param _in - input char
  * @return  true if it is indeed an operator, else false
  */
-bool isOperator(char _in)
+bool Tokens::Operators::isOperator(char _in)
 {
-	for (size_t i = 0; i < operators.size(); ++i)
+	for (size_t i = 0; i < operators_container.size(); ++i)
 	{
-		if (_in == operators.at(i).F_operator)
+		if (_in == operators_container.at(i).F_operator)
 			return true;
 	}
 	return false;
@@ -22,12 +22,12 @@ bool isOperator(char _in)
  * @param _in - input char
  * @return a reference to a corresponding operator in the operator container
  */
-const T_Operator& getOperator(char _in)
+const Tokens::Operators::S_Operator& Tokens::Operators::getOperator(char _in)
 {
-	for (size_t i = 0; i < operators.size(); ++i)
+	for (size_t i = 0; i < operators_container.size(); ++i)
 	{
-		if (_in == operators.at(i).F_operator)
-			return operators.at(i);
+		if (_in == operators_container.at(i).F_operator)
+			return operators_container.at(i);
 	}
 	exit(EXIT_FAILURE);
 }
@@ -37,11 +37,11 @@ const T_Operator& getOperator(char _in)
  * @param _in - input string to check
  * @return true if it is indeed an function, else false
  */
-bool isFunction(const std::string& _in)
+bool Tokens::Functions::isFunction(const std::string& _in)
 {
-	for (size_t i = 0; i < functions.size(); ++i)
+	for (size_t i = 0; i <functions_container.size(); ++i)
 	{
-		if (_in == functions.at(i).name)
+		if (_in == functions_container.at(i).name)
 			return true;
 	}
 	return false;
@@ -52,12 +52,12 @@ bool isFunction(const std::string& _in)
  * @param _in - input string
  * @return a reference to a corresponding function in the function storage
  */
-const T_UnaryFunction& getFunction(const std::string& _in)
+const Tokens::Functions::S_UnaryFunction& Tokens::Functions::getFunction(const std::string& _in)
 {
-	for (size_t i = 0; i < functions.size(); ++i)
+	for (size_t i = 0; i < functions_container.size(); ++i)
 	{
-		if (_in == functions.at(i).name)
-			return functions.at(i);
+		if (_in == functions_container.at(i).name)
+			return functions_container.at(i);
 	}
 	exit(EXIT_FAILURE);
 }

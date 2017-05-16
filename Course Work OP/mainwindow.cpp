@@ -6,54 +6,54 @@
 #include <fstream>
 #include <ctime>
 #include <iomanip>
-#include<string>
+#include <string>
 #include <chrono>
 #include <QDebug>
 
 
-const int MAX_FUNC_NUMBER = 10; // max number of functios supported
 /**
  * @brief MainWindow::MainWindow - ui constructor
  *
  */
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow), functions(MAX_FUNC_NUMBER), function_is_fine(MAX_FUNC_NUMBER, false),  initial_guess(MAX_FUNC_NUMBER), initial_guess_is_fine(MAX_FUNC_NUMBER,false), result(MAX_FUNC_NUMBER)
+MainWindow::MainWindow(QWidget* parent) :
+	QMainWindow(parent),
+	ui(new Ui::MainWindow), functions(MAX_FUNC_NUMBER), function_is_fine(MAX_FUNC_NUMBER, false), initial_guess(MAX_FUNC_NUMBER), initial_guess_is_fine(MAX_FUNC_NUMBER, false), result(MAX_FUNC_NUMBER)
 {
-    ui->setupUi(this);
-    QStringList name_initer;
-    for(int i = 1; i <= MAX_FUNC_NUMBER; ++i )
-        name_initer << "x" + QString::number(i);
-    ui->InitTable->setVerticalHeaderLabels(name_initer);
-    ui->ResultsTable->setVerticalHeaderLabels(name_initer);
-    ui->FunctionsTable->horizontalHeader()->setSectionResizeMode (QHeaderView::Fixed);
-    ui->FunctionsTable->verticalHeader()->setSectionResizeMode (QHeaderView::Fixed);
-    ui->InitTable->horizontalHeader()->setSectionResizeMode (QHeaderView::Fixed);
-    ui->InitTable->verticalHeader()->setSectionResizeMode (QHeaderView::Fixed);
-    ui->ResultsTable->horizontalHeader()->setSectionResizeMode (QHeaderView::Fixed);
-    ui->ResultsTable->verticalHeader()->setSectionResizeMode (QHeaderView::Fixed);
-    for(int i = 0; i<MAX_FUNC_NUMBER;++i)
-    {
-        QTableWidgetItem* init_tables[3];
-        for(int j = 0; j< 3;++j)
-        {
+	ui->setupUi(this);
+	QStringList name_initer;
+	for (int i = 1; i <= MAX_FUNC_NUMBER; ++i)
+		name_initer << "x" + QString::number(i);
+	ui->InitTable->setVerticalHeaderLabels(name_initer);
+	ui->ResultsTable->setVerticalHeaderLabels(name_initer);
+	ui->FunctionsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	ui->FunctionsTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	ui->InitTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	ui->InitTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	ui->ResultsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	ui->ResultsTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	for (int i = 0; i < MAX_FUNC_NUMBER; ++i)
+	{
+		QTableWidgetItem* init_tables[3];
+		for (int j = 0; j < 3; ++j)
+		{
 			init_tables[j] = new QTableWidgetItem;
-        }
-        ui->FunctionsTable->setItem(i,0,init_tables[0]);
-        ui->InitTable->setItem(i,0,init_tables[1]);
-        ui->ResultsTable->setItem(i,0,init_tables[2]);
-    }
-    ui->horizontalSlider->setRange(2,MAX_FUNC_NUMBER);
-    ui->SolvePushButton->setEnabled(false);
-    ui->SIMButton->setChecked(true);
-    ui->StatisticsBox->hide();
-    ui->statusBar->clearMessage();
+		}
+		ui->FunctionsTable->setItem(i, 0, init_tables[0]);
+		ui->InitTable->setItem(i, 0, init_tables[1]);
+		ui->ResultsTable->setItem(i, 0, init_tables[2]);
+	}
+	ui->horizontalSlider->setRange(2, MAX_FUNC_NUMBER);
+	ui->spinBox->setRange(2, MAX_FUNC_NUMBER);
+	ui->SolvePushButton->setEnabled(false);
+	ui->SIMButton->setChecked(true);
+	ui->StatisticsBox->hide();
+	ui->statusBar->clearMessage();
 	ui->spinBox->setValue(2);
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+	delete ui;
 }
 
 /**
@@ -62,48 +62,37 @@ MainWindow::~MainWindow()
  */
 void MainWindow::on_spinBox_valueChanged(int new_val)
 {
-    ui->SolvePushButton->setEnabled(false);
-    auto curr_val = new_val;
-    if(curr_val<2)
-    {
-        ui->spinBox->setValue(2);
-        curr_val = 2;
-    }
-    if(curr_val>MAX_FUNC_NUMBER)
-    {
-        ui->spinBox->setValue(MAX_FUNC_NUMBER);
-         curr_val = MAX_FUNC_NUMBER;
-    }
-    ui->horizontalSlider->setValue(curr_val);
-    for(int i = 0; i < curr_val; ++i)
-    {
-        ui->FunctionsTable->showRow(i);
-        ui->InitTable->showRow(i);
-        ui->ResultsTable->showRow(i);
-    }
-    for(int i = curr_val; i < MAX_FUNC_NUMBER; ++i)
-    {
-        ui->FunctionsTable->hideRow(i);
-        ui->InitTable->hideRow(i);
-        ui->ResultsTable->hideRow(i);
-    }
-    for(int row = 0; row < curr_val;++row)
-    {
-       on_FunctionsTable_cellChanged(row,0);
-       on_InitTable_cellChanged(row, 0);
-    }
-    ui->statusBar->clearMessage();
-    if(isFine())
-    {
-        ui->statusBar->showMessage("Ready to solve!!!");
-        ui->SolvePushButton->setEnabled(true);
-    }
+	ui->SolvePushButton->setEnabled(false);
+	for (int i = 2; i < new_val; ++i)
+	{
+		ui->FunctionsTable->showRow(i);
+		ui->InitTable->showRow(i);
+		ui->ResultsTable->showRow(i);
+	}
+	for (int i = new_val; i < MAX_FUNC_NUMBER; ++i)
+	{
+		ui->FunctionsTable->hideRow(i);
+		ui->InitTable->hideRow(i);
+		ui->ResultsTable->hideRow(i);
+	}
+	for (int row = 0; row < new_val; ++row)
+	{
+		on_FunctionsTable_cellChanged(row, 0);
+		on_InitTable_cellChanged(row, 0);
+	}
+	ui->statusBar->clearMessage();
+	if (isFine())
+	{
+		ui->statusBar->showMessage("Ready to solve!!!");
+		ui->SolvePushButton->setEnabled(true);
+	}
 	ui->FunctionsTable->verticalHeader()->adjustSize();
 	ui->InitTable->verticalHeader()->adjustSize();
 	ui->ResultsTable->verticalHeader()->adjustSize();
-	ui->FunctionsTable->setColumnWidth(0, ui->FunctionsTable->width() - ui->FunctionsTable->verticalHeader()->width()-1);
-	ui->InitTable->setColumnWidth(0, ui->InitTable->width() - ui->InitTable->verticalHeader()->width()-1);
+	ui->FunctionsTable->setColumnWidth(0, ui->FunctionsTable->width() - ui->FunctionsTable->verticalHeader()->width() - 1);
+	ui->InitTable->setColumnWidth(0, ui->InitTable->width() - ui->InitTable->verticalHeader()->width() - 1);
 	ui->ResultsTable->setColumnWidth(0, ui->ResultsTable->width() - ui->ResultsTable->verticalHeader()->width());
+	ui->horizontalSlider->setValue(new_val);
 }
 
 /**
@@ -112,7 +101,7 @@ void MainWindow::on_spinBox_valueChanged(int new_val)
  */
 void MainWindow::on_horizontalSlider_valueChanged(int _new_value)
 {
-    ui->spinBox->setValue(_new_value);
+	ui->spinBox->setValue(_new_value);
 }
 
 /**
@@ -122,45 +111,44 @@ void MainWindow::on_horizontalSlider_valueChanged(int _new_value)
  */
 void MainWindow::on_FunctionsTable_cellChanged(int row, int column)
 {
-   ui->SolvePushButton->setEnabled(false);
-   try
-   {
-     auto Qfunc = ui->FunctionsTable->item(row,column)->text().toLower().remove(' ');
-     ui->FunctionsTable->item(row,column)->setText(Qfunc);
-     std::string func = Qfunc.toStdString();
-     if(func.empty())
-     {
-         ui->FunctionsTable->item(row,column)->setBackgroundColor({255,255,255});
-         return;
-     }
-     preAnalize(func);
-     functions.at(row) = shuntingYard(func, ui->spinBox->value());
-     std::vector<double> test_guess(ui->spinBox->value(),0);
-     calculateFunc(functions.at(row), test_guess);
-      ui->statusBar->showMessage("Function " + QString::number(row+1) + " is ok",2000);
-      ui->FunctionsTable->item(row,column)->setBackgroundColor({255,255,255});
-      function_is_fine.at(row) = true;
-      if(isFine())
-      {
-           ui->statusBar->showMessage("Ready to solve!!!");
-           ui->SolvePushButton->setEnabled(true);
-      }
-   }
-   catch(std::exception& _exception)
-   {
-       ui->statusBar->showMessage("Function " + QString::number(row+1) + ": " + _exception.what());
-       function_is_fine.at(row) = false;
-       ui->FunctionsTable->item(row,column)->setBackgroundColor({255,0,0});
-	   ui->FunctionsTable->item(row,column)->setSelected(false);
-   }
-   catch(...)
-   {
-       ui->statusBar->showMessage("Function " + QString::number(row+1) + ": " "something is horribly wrong");
-       function_is_fine.at(row) = false;
-       ui->FunctionsTable->item(row,column)->setBackgroundColor({255,0,0});
-	   ui->FunctionsTable->item(row,column)->setSelected(false);
-   }
-
+	ui->SolvePushButton->setEnabled(false);
+	try
+	{
+		auto Qfunc = ui->FunctionsTable->item(row, column)->text().toLower().remove(' ');
+		ui->FunctionsTable->item(row, column)->setText(Qfunc);
+		std::string func = Qfunc.toStdString();
+		if (func.empty())
+		{
+			ui->FunctionsTable->item(row, column)->setBackgroundColor({255,255,255});
+			return;
+		}
+		ShuntingYard::preAnalize(func);
+		functions.at(row) = ShuntingYard::shuntingYard(func, ui->spinBox->value());
+		std::vector<double> test_guess(ui->spinBox->value(), 0);
+		ShuntingYard::calculateFunc(functions.at(row), test_guess);
+		ui->statusBar->showMessage("Function " + QString::number(row + 1) + " is ok", 2000);
+		ui->FunctionsTable->item(row, column)->setBackgroundColor({255,255,255});
+		function_is_fine.at(row) = true;
+		if (isFine())
+		{
+			ui->statusBar->showMessage("Ready to solve!!!");
+			ui->SolvePushButton->setEnabled(true);
+		}
+	}
+	catch (std::exception& _exception)
+	{
+		ui->statusBar->showMessage("Function " + QString::number(row + 1) + ": " + _exception.what());
+		function_is_fine.at(row) = false;
+		ui->FunctionsTable->item(row, column)->setBackgroundColor({255,0,0});
+		ui->FunctionsTable->item(row, column)->setSelected(false);
+	}
+	catch (...)
+	{
+		ui->statusBar->showMessage("Function " + QString::number(row + 1) + ": " "something is horribly wrong");
+		function_is_fine.at(row) = false;
+		ui->FunctionsTable->item(row, column)->setBackgroundColor({255,0,0});
+		ui->FunctionsTable->item(row, column)->setSelected(false);
+	}
 }
 
 /**
@@ -169,18 +157,18 @@ void MainWindow::on_FunctionsTable_cellChanged(int row, int column)
  */
 bool MainWindow::isFine()
 {
-    for(int i = 0; i < ui->spinBox->value(); ++i)
-    {
-        if(function_is_fine[i] == false)
-        {
-            return false;
-        }
-        if(initial_guess_is_fine[i] == false)
-        {
-            return false;
-        }
-    }
-    return true;
+	for (int i = 0; i < ui->spinBox->value(); ++i)
+	{
+		if (function_is_fine[i] == false)
+		{
+			return false;
+		}
+		if (initial_guess_is_fine[i] == false)
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 /**
@@ -190,27 +178,27 @@ bool MainWindow::isFine()
  */
 void MainWindow::on_InitTable_cellChanged(int row, int column)
 {
-    ui->SolvePushButton->setEnabled(false);
-    bool state = false;
-    double res = ui->InitTable->item(row,column)->text().toDouble(&state);
-    res = round(res*1000.0)/1000.0;
-    if(state)
-    {
-        ui->InitTable->item(row,column)->setText(QString::number(res));
-        initial_guess.at(row) = res;
-        initial_guess_is_fine.at(row) = true;
-        if(isFine())
-        {
-             ui->statusBar->showMessage("Ready to solve!!!");
-             ui->SolvePushButton->setEnabled(true);
-        }
-    }
-    else
-    {
-         ui->InitTable->item(row,column)->setText("");
-         initial_guess_is_fine.at(row) = false;
-         ui->statusBar->showMessage("Intial guess for x" + QString::number(row+1) + ": " + "Only a number can be entered");
-    }
+	ui->SolvePushButton->setEnabled(false);
+	bool state = false;
+	double res = ui->InitTable->item(row, column)->text().toDouble(&state);
+	res = round(res * 1000.0) / 1000.0;
+	if (state)
+	{
+		ui->InitTable->item(row, column)->setText(QString::number(res));
+		initial_guess.at(row) = res;
+		initial_guess_is_fine.at(row) = true;
+		if (isFine())
+		{
+			ui->statusBar->showMessage("Ready to solve!!!");
+			ui->SolvePushButton->setEnabled(true);
+		}
+	}
+	else
+	{
+		ui->InitTable->item(row, column)->setText("");
+		initial_guess_is_fine.at(row) = false;
+		ui->statusBar->showMessage("Intial guess for x" + QString::number(row + 1) + ": " + "Only a number can be entered");
+	}
 }
 
 
@@ -219,96 +207,96 @@ void MainWindow::on_InitTable_cellChanged(int row, int column)
  */
 void MainWindow::on_SolvePushButton_clicked()
 {
-    std::vector<std::string> useful_funcs(functions.cbegin(),functions.cbegin()+ ui->spinBox->value());
-    auto copy = useful_funcs;
-    std::sort(copy.begin(),copy.end());
-    if(std::unique(copy.begin(),copy.end()) != copy.end())
-    {
-        ui->statusBar->showMessage("Error: Some functions are duplicates. A single isolated solution does not exist");
-        ui->StatisticsBox->hide();
-        for(int i = 0; i < MAX_FUNC_NUMBER; ++i)
-        {
-            ui->ResultsTable->item(i,0)->setText("");
-        }
-        return;
-    }
-    if(!Maths::allVariablesArePresent(useful_funcs))
-    {
-        ui->statusBar->showMessage("Error: Not all variables are present in functions");
-        ui->StatisticsBox->hide();
-        for(int i = 0; i < MAX_FUNC_NUMBER; ++i)
-        {
-            ui->ResultsTable->item(i,0)->setText("");
-        }
-        return;
-    }
-    std::vector<double> useful_guess(initial_guess.cbegin(),initial_guess.cbegin()+ ui->spinBox->value());
-    try
-    {
-		auto result = ui->SIMButton->isChecked()? FixedPointIteration::getResult(useful_funcs, useful_guess): GaussSeidel::getResult(useful_funcs, useful_guess);
-		for(int i = 0; i < result.x_vector.size();++i)
-        {
-			ui->ResultsTable->item(i,0)->setText(QString::number(result.x_vector[i],'f', 5));
-        }
+	std::vector<std::string> useful_funcs(functions.cbegin(), functions.cbegin() + ui->spinBox->value());
+	auto copy = useful_funcs;
+	std::sort(copy.begin(), copy.end());
+	if (std::unique(copy.begin(), copy.end()) != copy.end())
+	{
+		ui->statusBar->showMessage("Error: Some functions are duplicates. A single isolated solution does not exist");
+		ui->StatisticsBox->hide();
+		for (int i = 0; i < MAX_FUNC_NUMBER; ++i)
+		{
+			ui->ResultsTable->item(i, 0)->setText("");
+		}
+		return;
+	}
+	if (!Maths::allVariablesArePresent(useful_funcs))
+	{
+		ui->statusBar->showMessage("Error: Not all variables are present in functions");
+		ui->StatisticsBox->hide();
+		for (int i = 0; i < MAX_FUNC_NUMBER; ++i)
+		{
+			ui->ResultsTable->item(i, 0)->setText("");
+		}
+		return;
+	}
+	std::vector<double> useful_guess(initial_guess.cbegin(), initial_guess.cbegin() + ui->spinBox->value());
+	try
+	{
+		auto result = ui->SIMButton->isChecked() ? Iterative::FixedPointIteration::getResult(useful_funcs, useful_guess) : Iterative::GaussSeidel::getResult(useful_funcs, useful_guess);
+		for (int i = 0; i < result.x_vector.size(); ++i)
+		{
+			ui->ResultsTable->item(i, 0)->setText(QString::number(result.x_vector[i], 'f', 5));
+		}
 		ui->TimeLabel->setText("Time taken: <b>" + QString::number(result.time) + "ms</b>&nbsp;&nbsp;&nbsp;&nbsp;Number of iterations:<b>" + QString::number(result.number_of_iterations) + "</b>");
-        ui->StatisticsBox->show();
-        if(ui->WriteToFilecheckBox->isChecked())
-        {
-		   writeToFile(result);
-        }
-        ui->statusBar->showMessage("Solved!!! See statistics above");
-    }
-    catch(std::exception _exception)
-    {
-         ui->statusBar->showMessage(_exception.what());
-         ui->StatisticsBox->hide();
-         for(int i = 0; i < MAX_FUNC_NUMBER; ++i)
-         {
-             ui->ResultsTable->item(i,0)->setText("");
-         }
-    }
+		ui->StatisticsBox->show();
+		if (ui->WriteToFilecheckBox->isChecked())
+		{
+			writeToFile(result);
+		}
+		ui->statusBar->showMessage("Solved!!! See statistics above");
+	}
+	catch (std::exception _exception)
+	{
+		ui->statusBar->showMessage(_exception.what());
+		ui->StatisticsBox->hide();
+		for (int i = 0; i < MAX_FUNC_NUMBER; ++i)
+		{
+			ui->ResultsTable->item(i, 0)->setText("");
+		}
+	}
 }
 
 /**
  * @brief MainWindow::writeToFile - function that writes the iterative process to file
  * @param _result - systems solution and stats
  */
-void MainWindow::writeToFile(S_Result _result)
+void MainWindow::writeToFile(Iterative::S_Result _result)
 {
-    std::ofstream file("stats.txt", std::ios::app);
-    auto curr_time = std::time(nullptr);
-    auto tm = std::localtime(&curr_time);
-    file << std::put_time(tm,"%T %d-%m-%Y");
-    file << "\nSolution was foud using " << (ui->SIMButton->isChecked()?"Simple interation method":"Gauss-Siedel method")<<"!!!\nFunctions: \n";
-    for(int i = 0 ; i < ui->spinBox->value();++i)
-    {
-        auto func = ui->FunctionsTable->item(i,0)->text().toStdString();
-        preAnalize(func);
-        file << i+1 << ": " << func << '\n';
-    }
-    file << std::fixed <<std::left <<std::setprecision(5);
-    file <<std::setw(15)<<"Variables: ";
-    file <<std::setw(11);
-    for(int i = 0 ; i < ui->spinBox->value();++i)
-    {
-        ((file.put('x')) << i+1);
-    }
-    file<< std::endl <<std::setw(15)<<"Init Guess:";
-    file <<std::setw(12);
-    for(int i = 0 ; i < ui->spinBox->value();++i)
-    {
-        file << initial_guess[i];
-    }
-   for(size_t i = 0; i < _result.iterations.size();++i)
-    {
-		 std::string out = "iteration " + std::to_string(i+1) + ": ";
-		 file << std::endl <<std::setw(15) << out <<std::setw(12) ;
-		 for(int j = 0 ; j < ui->spinBox->value();++j)
-         {
+	std::ofstream file("stats.txt", std::ios::app);
+	auto curr_time = std::time(nullptr);
+	auto tm = std::localtime(&curr_time);
+	file << std::put_time(tm, "%T %d-%m-%Y");
+	file << "\nSolution was foud using " << (ui->SIMButton->isChecked() ? "Simple interation method" : "Gauss-Siedel method") << "!!!\nFunctions: \n";
+	for (int i = 0; i < ui->spinBox->value(); ++i)
+	{
+		auto func = ui->FunctionsTable->item(i, 0)->text().toStdString();
+		ShuntingYard::preAnalize(func);
+		file << i + 1 << ": " << func << '\n';
+	}
+	file << std::fixed << std::left << std::setprecision(5);
+	file << std::setw(15) << "Variables: ";
+	file << std::setw(11);
+	for (int i = 0; i < ui->spinBox->value(); ++i)
+	{
+		((file.put('x')) << i + 1);
+	}
+	file << std::endl << std::setw(15) << "Init Guess:";
+	file << std::setw(12);
+	for (int i = 0; i < ui->spinBox->value(); ++i)
+	{
+		file << initial_guess[i];
+	}
+	for (size_t i = 0; i < _result.iterations.size(); ++i)
+	{
+		std::string out = "iteration " + std::to_string(i + 1) + ": ";
+		file << std::endl << std::setw(15) << out << std::setw(12);
+		for (int j = 0; j < ui->spinBox->value(); ++j)
+		{
 			(file << _result.iterations[i][j]);
-         }
-    }
-    (file.put('\n')) << std::setw(1);
+		}
+	}
+	(file.put('\n')) << std::setw(1);
 	file << "Number of iterations:" << _result.number_of_iterations << '\n';
 	file << "Time:" << _result.time << "ms\n\n";
 }

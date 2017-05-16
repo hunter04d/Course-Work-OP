@@ -24,18 +24,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-    Operators.cpp \
     ShuntingYard.cpp \
     Maths.cpp \
     Iterative.cpp \
-    MainWindow.cpp
+    MainWindow.cpp \
+    Tokens.cpp
 
 HEADERS  += \
-    Operators.h \
     ShuntingYard.h \
     Stack.h \
     Maths.h \
     Iterative.h \
-    MainWindow.h
+    MainWindow.h \
+    Tokens.h
 
 FORMS    += mainwindow.ui
+
+RC_ICONS += SNR2.ico

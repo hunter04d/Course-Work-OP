@@ -1,6 +1,6 @@
 ﻿#include "ShuntingYard.h"
 #include <sstream>
-#include "Operators.h"
+#include "Tokens.h"
 #include <cctype>
 #include <string>
 #include <algorithm>
@@ -11,7 +11,7 @@
  * it mosty just inserts * where it can implied
  * @param _in - string to preanalize, changes are made to this string
  */
-void preAnalize(std::string& _in)
+void ShuntingYard::preAnalize(std::string& _in)
 {
     for(size_t i = 0u; i < _in.size();++i)
     {
@@ -56,7 +56,7 @@ void preAnalize(std::string& _in)
  * @param _function_number - total number of functions to expect (max number of variables allowed)
  * @return function in posfix notation ready to be calculed
  */
-std::string shuntingYard(const std::string& _in, size_t _function_number) //to RPN
+std::string ShuntingYard::shuntingYard(const std::string& _in, size_t _function_number) //to RPN
 {
     size_t pos(0);
     Stack<std::string> stack;
@@ -136,7 +136,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
                 throw std::exception("Mismatched Parenthesis");
             }
 			stack.pop(); // the left brace at the top
-            if (!stack.empty() && isFunction(stack.top()))
+            if (!stack.empty() && Tokens::Functions::isFunction(stack.top()))
             {
                 out += stack.pop() + ' ';
             }
@@ -148,7 +148,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
         // Unary Minus
         if(curr_char == '-' && pos < _in.size()-1)
         {
-            if((pos == 0 || _in[pos-1] == '(' || isOperator(_in[pos-1])))
+            if((pos == 0 || _in[pos-1] == '(' || Tokens::Operators::isOperator(_in[pos-1])))
             {
                 stack.push("unary_minus");
                 ++pos;
@@ -157,7 +157,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
             }
         }
         // Operators
-        if (isOperator(curr_char))
+        if (Tokens::Operators::isOperator(curr_char))
         {
             if(pos == 0)
             {
@@ -230,7 +230,7 @@ std::string shuntingYard(const std::string& _in, size_t _function_number) //to R
  * @param _arg_vals - point at which to calculate
  * @return a value of a function at that point
  */
-double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_vals)
+double ShuntingYard::calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_vals)
 {
     std::istringstream stream(_RPN);
     Stack<double> numbers;
@@ -248,14 +248,14 @@ double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_va
         }
         else
         {
-            if (isOperator(token[0]))
+            if (Tokens::Operators::isOperator(token[0]))
             {
                 if(numbers.size()< 2)
                 {
                     throw std::exception("incorrect intput");
                 }
                 double operant2(numbers.pop()), operant1(numbers.pop());
-                const T_Operator& v_operator = getOperator(token[0]);
+                const Tokens::Operators::S_Operator& v_operator = Tokens::Operators::getOperator(token[0]);
                 numbers.push(v_operator.function(operant1, operant2));
             }
             else // isFunction(token)
@@ -265,7 +265,7 @@ double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_va
                     throw std::exception("incorrect intput");
                 }
                 double argument(numbers.pop());
-                const T_UnaryFunction& v_function = getFunction(token);
+                const Tokens::Functions::S_UnaryFunction& v_function = Tokens::Functions::getFunction(token);
 				numbers.push(v_function.function(argument));
             }
         }
@@ -280,7 +280,7 @@ double calculateFunc(const std::string& _RPN, const std::vector<double>& _arg_va
  * @param _function_number - maximum numbered variable to expect
  * @return -1 if not a variable, else - the lenght of a variable (>2 since each variable must be numbered)
  */
-int getVariableToken(const std::string& _in, size_t _pos,size_t _function_number)
+int ShuntingYard::getVariableToken(const std::string& _in, size_t _pos,size_t _function_number)
 {
     if (_in[_pos] == 'x')
     {
@@ -312,7 +312,7 @@ int getVariableToken(const std::string& _in, size_t _pos,size_t _function_number
  * @param _pos - position to check at
  * @return -1 if it is not a number token, else the length of a token
  */
-int getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
+int ShuntingYard::getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
 {
 	// number is defined as any number of digits, one dot is possible
     if (isdigit(_in[_pos]))
@@ -351,7 +351,7 @@ int getNumberToken(const std::string& _in, size_t _pos /*= 0*/)
  * @param _pos - positon to check at
  * @return -1 if it is a function token, else the length of a token
  */
-int getFuncToken(const std::string& _in, size_t _pos /*= 0*/)
+int ShuntingYard::getFuncToken(const std::string& _in, size_t _pos /*= 0*/)
 {
     //function is defined as letters and numbers until '(' starting with !!!a letter!!!
     //example: log10, ln, sin, cos, ect...
@@ -373,7 +373,7 @@ int getFuncToken(const std::string& _in, size_t _pos /*= 0*/)
                 throw std::exception("Unknown string Entered");
             }
         }
-        if (isFunction(_in.substr(_pos, count)))
+        if (Tokens::Functions::isFunction(_in.substr(_pos, count)))
             return int(count);
         std::string exception_happened = "Unknown token at position " + std::to_string(_pos + 1) + ' ' + _in.substr(_pos, count);
         throw std::exception(exception_happened.c_str());
@@ -385,11 +385,11 @@ int getFuncToken(const std::string& _in, size_t _pos /*= 0*/)
  * @brief operatorCompare - function that compares presedence of the current operator and the operator (or a left brace or a function) on top of the stack
  * @param _in_char - operator
  * @param _tops_of_stack - operator at the top of the stack
- * @return true if top of stack presedence is less(based on the associativity tag, and false otherwise
+ * @return true if top of stack presedence is less(based on the associativity tag) and false otherwise
  */
-bool operatorCompare(char _in_char, const std::string& _tops_of_stack)
+bool ShuntingYard::operatorCompare(char _in_char, const std::string& _tops_of_stack)
 {
-    const T_Operator& curr_operator = getOperator(_in_char);
+    const Tokens::Operators::S_Operator& curr_operator = Tokens::Operators::getOperator(_in_char);
 	size_t top_of_stack_presedence;
 	if (_tops_of_stack == "(") // brace is not an operator
     {
@@ -401,10 +401,10 @@ bool operatorCompare(char _in_char, const std::string& _tops_of_stack)
     }
     else
     {
-        top_of_stack_presedence = getOperator(_tops_of_stack.at(0)).presedence;
+        top_of_stack_presedence = Tokens::Operators::getOperator(_tops_of_stack.at(0)).presedence;
     }
-	if ((curr_operator.associativity == T_Operator::E_left && curr_operator.presedence <= top_of_stack_presedence) ||
-		(curr_operator.associativity == T_Operator::E_right && curr_operator.presedence < top_of_stack_presedence))
+	if ((curr_operator.associativity == Tokens::Operators::S_Operator::E_left && curr_operator.presedence <= top_of_stack_presedence) ||
+		(curr_operator.associativity == Tokens::Operators::S_Operator::E_right && curr_operator.presedence < top_of_stack_presedence))
     {
         return true;
     }
